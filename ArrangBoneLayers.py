@@ -17,7 +17,10 @@ def moveToLayer(poseBone, layerNumber):
             poseBone.bone.layers[i] = False  # set other layer to False
 
 
-# If there ARE objects selected then act on all objects
-for poseBone in bpy.context.active_object.pose.bones[:]:
-    if poseBone.bone.use_deform and poseBone.bone.layers[deformLayerNo] is False:
-        moveToLayer(poseBone, deformLayerNo)
+def moveDEFBones():
+    # If there ARE objects selected then act on all objects
+    for poseBone in bpy.context.active_object.pose.bones[:]:
+        if poseBone.bone.use_deform and poseBone.bone.layers[deformLayerNo] is False:
+            moveToLayer(poseBone, deformLayerNo)
+
+moveDEFBones()
