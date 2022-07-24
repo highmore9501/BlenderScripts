@@ -106,9 +106,13 @@ bpy.ops.armature.duplicate_move(ARMATURE_OT_duplicate={"do_flip_names": False},
                                                         "use_accurate": False, "use_automerge_and_split": False})
 
 # 第27层为True，如果需要改到别的层，请在这语句里修改
-bpy.ops.armature.bone_layers(layers=(
+layersValue = [
 False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False,
-False, False, False, False, False, False, False, False, False, False, True, False, False, False, False))
+False, False, False, False, False, False, False, False, False, False, False, False, False, False, False]
+
+layersValue[TGTLayer] = True
+
+bpy.ops.armature.bone_layers(layers=tuple(layersValue))
 
 bpy.ops.object.posemode_toggle()
 
