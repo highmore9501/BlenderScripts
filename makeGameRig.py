@@ -1,4 +1,4 @@
-#  为原Rig生成GameRig，并将原rig中的DEF功能全部去掉，将之变成一个TGTRig
+#  为原Rig生成GameRig，并将原rig中的DEF功能全部去掉，将之变成一个传递控制的Layer
 #   在objectMode下选中原始Rig，然后执行脚本
 #   执行脚本成功以后，要将已经绑定权重的Mesh里的Armature修改器内的参数改成新生成的GameRig
 
