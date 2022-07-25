@@ -7,6 +7,7 @@ import bpy
 
 deformLayerNo = 29
 
+
 def moveToLayer(poseBone, layerNumber):
     poseBone.bone.layers[layerNumber] = True  # move bone to DEF Layer
     poseBone.custom_shape = None
@@ -26,13 +27,6 @@ def uncheckDEFOption():
     for poseBone in bpy.context.active_object.pose.bones[:]:
         if poseBone.bone.use_deform:
             poseBone.bone.use_deform = False
-
-
-def removeAllConstraint(ob):  #  清除目标上所有的constraints
-    cl = len(ob.constraints)
-    if cl != 0:
-        for c in ob.constraints:
-            ob.constraints.remove(c)
 
 
 orgName = bpy.context.object.name
@@ -58,15 +52,10 @@ bpy.ops.armature.select_all(action='INVERT')
 # 删除
 bpy.ops.armature.delete()
 
-#  切换到PoseMode，去掉骨骼上所有的constraint，然后全部新建对应原Rig上同名骨骼的CopyTransform:
+#  切换到PoseMode，去掉骨骼上所有的constraint
 bpy.ops.object.posemode_toggle()
 bpy.ops.pose.select_all(action='SELECT')
-
-for poseBone in bpy.context.selected_pose_bones:
-    removeAllConstraint(poseBone)
-    cs = poseBone.constraints.new('COPY_TRANSFORMS')
-    cs.target = bpy.data.objects[orgName]
-    cs.subtarget = poseBone.bone.name
+bpy.ops.pose.constraints_clear()
 
 #  切换到ObjectMode，选择原Rig，然后去掉原Rig所有骨骼的DEF功能
 bpy.ops.object.posemode_toggle()
@@ -74,4 +63,8 @@ bpy.context.view_layer.objects.active = bpy.data.objects[orgName]
 bpy.data.objects[orgName].select_set(True)
 bpy.ops.object.posemode_toggle()
 uncheckDEFOption()
+
+#  把原rig中所有bendyBone选项设置为1
+for poseBone in bpy.context.active_object.pose.bones:
+    poseBone.bone.bbone_segments = 1
 
