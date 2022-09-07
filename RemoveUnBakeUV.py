@@ -7,5 +7,5 @@ import bpy
 for obj in bpy.context.selected_objects:
     if obj.type == 'MESH' and "Bake" in obj.data.uv_layers:
         for uv_layer in obj.data.uv_layers:
-            if uv_layer.name is not "Bake":
+            if uv_layer.name != "Bake":
                 obj.data.uv_layers.remove(uv_layer)
