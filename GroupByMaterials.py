@@ -18,13 +18,13 @@ for item in bpy.context.selected_objects:
         if len(item.data.materials) == 1:  # 有且只有一种材料
             materialName = str(item.material_slots[0].material.name)  # 拿到材料名
             colCounter = 0  # 笨办法，用这个值来计算有多少同名的Collections
-            for col in bpy.data.collections:  # 材料名不在所有的Collection组里 ，新建组，然后移动物体过去
+            for col in bpy.data.collections:
                 if col.name == materialName:
                     colCounter += 1
 
             if colCounter == 1:
                 move2Collection(item, bpy.data.collections[materialName])
-            else:
+            else:   # 材料名不在所有的Collection组里 ，新建组，然后移动物体过去
                 newCollection = bpy.data.collections.new(name=materialName)
                 bpy.context.scene.collection.children.link(newCollection)
                 move2Collection(item, newCollection)
