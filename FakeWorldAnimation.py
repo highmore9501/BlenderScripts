@@ -1,62 +1,49 @@
 import bpy
 
 #  此脚本用于移动世界，以模拟静止物体移动的效果。在运行此脚本前需要做一些前置工作。以下会讲具体做法，但数学上的证明都略过。
-#  如果我们希望某物体A，在世界中按曲线C_0的轨道运动，一般我们的操作是先把A的位置，旋转，缩放都重置，然后使用PathOf约束器，让它按曲线C_0的轨道运动。当然，约束器生效时，A的实际位置会移动到C曲线的开始处，尽管此时A的transform数据仍然是显示初始状态。我们把A的实际位置状态称为A_0
-#  假使A实际不发生任何运动，而是由除A以外的世界运动，造成A在运动的假象。那就需要将整个世界绑定在一个轴心WorldPivot上，并且这个轴心沿另外一个曲线C_1运动，世界随着WorldPivot运动可以达到这样的效果。
-#  上面所说的这个WorldPivot，它的初始位置，就是A_0相对于绝对坐标系的镜像位置，曲线C_1就是C_0相对绝对坐标系的镜像位置。
-
-#  我们先选择曲线C，复制一条曲线，然后以绝对坐标系原点为轴心，缩放-1倍，得到的就是镜像曲线C_1。
-#  在绝对坐标系原点片我们新建一个pivot，命名为offsetPivot，让它使用PathOf，目标是C_1。此时offsetPivot会移动到一个位置，这个位置就是A_0的初始位置，我们管它叫A_1。
-#   然后我们新建一个pivot，命名为WorldPivot，然后把除物体A以外的所有东西都绑定到它上面，它就是世界轴心。
-#   当offsetPivot沿着C_1运动时，每一帧都会发生位置和旋转的变化。WorldPivot需要对冲掉offsetPivot的旋转，同时复制offsetPivot的位移。
-#   这种对冲和复制，不太容易理解，以下只说明计算方法：
-#   对冲旋转值：先取得offsetPivot的旋转值，如果是四元值，直接用invert()。如果是Euler值，先转化成Matrix或者四元值，然后Invert()。将计算得到的值赋值给worldPivot的旋转值。注意，此时的旋转实际上是以物体A为轴心完成的。
-#   复制位移值：在得到worldPivot的旋转值以后，用它来计算出一个坐标转换矩阵T，用于计算以物体A为轴心的旋转完成以后，worldPivot的位置计算可见FakeWorldAnimation.MD里的图示
-#   每一帧都进行以上计算，就得到了最终的模拟结果：从绝对坐标系来看，世界随着WorldPivot在运动，而在WorldPivot的坐标系来看，物体A在沿着一条类似C_0的曲线在运动。
+#  如果我们希望某物体carPivot，在世界中按曲线C的轨道运动，一般我们的操作是先把carPivot的位置，旋转，缩放都重置，然后使用PathOf约束器，让它按曲线C的轨道运动。当然，约束器生效时，A的实际位置会移动到C曲线的开始处，尽管此时A的transform数据仍然是显示初始状态。
+#  烘焙carPivot的运动轨迹
+#  新建一个worldPivot，然后把除carPivot以外的整个世界都绑定在它上面
+#  设置好总帧数，设置好物体和世界轴心的名字，然后运行以下脚本
 
 import mathutils
 
 frames = 1600  # 设置总帧数
 currentFrame = 1
 
-worldPivot = bpy.data.objects['WorldPivot']  # 如果各轴心和主体命名不一样，需要在这里更改
+worldPivot = bpy.data.objects['WorldPivot']  # 如果世界轴心和car的命名和代码里的不一样，可以在这里更改
 worldPivotInitLocation = worldPivot.location + mathutils.Vector((0, 0, 0))
-
-offsetPivot = bpy.data.objects['DirectionPivot']
-offsetPivotInitLocation = offsetPivot.location + mathutils.Vector((0, 0, 0))
 
 carPivot = bpy.data.objects['CarPivot']
 carInitLocation = carPivot.location + mathutils.Vector((0, 0, 0))
 
-worldPivot.select_set(True)
-
 for i in range(frames):
     bpy.context.scene.frame_set(i + 1)
-    bpy.ops.object.location_clear(clear_delta=False)
-    bpy.ops.object.rotation_clear(clear_delta=False)
 
-    #  计算逆旋转，然后以物体A为轴心，对WorldPivot应用旋转
-    r = offsetPivot.rotation_euler
+    #  计算逆旋转
+    r = carPivot.rotation_euler
     q = mathutils.Euler.to_matrix(r)
     q.invert()
     r = mathutils.Matrix.to_euler(q)
     worldPivot.rotation_euler = r
 
-    #  四元数版本
-    # r = offsetPivot.rotation_quaternion
-    # q = mathutils.Quaternion.to_matrix(r)
-    # q.invert()
-    # r = mathutils.Matrix.to_quaternion(q)
-    # worldPivot.rotation_quaternion = r
-
-    # 计算旋转后的世界位移，这一段的计算推导见印象笔记相关内容
+    # 计算旋转后的世界位移
     transMatrix = r.to_matrix()
-    worldPivot.location = carInitLocation + transMatrix @ (
-            offsetPivot.location - offsetPivotInitLocation + worldPivotInitLocation - carInitLocation)
+    worldPivot.location = carInitLocation + transMatrix @ (worldPivotInitLocation - carPivot.location)
 
     # k帧
     worldPivot.keyframe_insert('location')
     worldPivot.keyframe_insert('rotation_euler')
+
+    #  四元数版本
+    # r = carPivot.rotation_quaternion
+    # q = mathutils.Euler.to_matrix(r)
+    # q.invert()
+    # r = mathutils.Matrix.to_quaternion(q)
+    # worldPivot.rotation_quaternion = r
+    # transMatrix = r.to_matrix()
+    # worldPivot.location = carInitLocation + transMatrix @ (worldPivotInitLocation - carPivot.location)
+    # worldPivot.keyframe_insert('location')
     # worldPivot.keyframe_insert('rotation_quaternion')
 
     currentFrame += 1
