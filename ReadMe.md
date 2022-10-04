@@ -3,7 +3,7 @@
 
 这仓库里存放的是我平时常用的一些Blender脚本，每个脚本内附有简单功能说明。
 
-###  Blender to GameEngines
+### 从blender导出到引擎
 基于Youtube上的系列视频[Blender to GameEngines](https://www.youtube.com/watch?v=6nCriSbfHjc&list=PLdcL5aF8ZcJvCyqWeCBYVGKbQgrQngen3) ，
 自己写了一些脚本来完成其中的部分工序。具体思路以及其它需要手工完成的部分，还是需要去看原视频系列。
 
@@ -17,8 +17,10 @@
 7. 去掉变形Rig上的所有Transform，输出变形rig以及Bake好的动作到游戏引擎中。
 
 结合作者的思路，以及自写的脚本，目前的工作流程是：
+
 1. 选中原始rig，运行ArrangeBoneLayers.py，使所有变形骨骼都移动到第29层（因为我使用Rigify，它默认的DEF层就是29层）。
-2. 切换回ObjectMode，运行makeGameRig.py。会生成一个后缀名为.GameRig的变形rig，而原始rig里的所有的变形功能会被去掉。_所以，如果想恢复原来的变形功能，需要回到第29层，全选骨骼并且按alt后勾选deform。_
+2. 切换回ObjectMode，运行makeGameRig.py。会生成一个后缀名为.GameRig的变形rig，而原始rig里的所有的变形功能会被去掉。_
+   所以，如果想恢复原来的变形功能，需要回到第29层，全选骨骼并且按alt后勾选deform。_
 3. 切换到变形rig的PoseMode，切换到变形层（默认是29层），运行checkDEFLayer.py。运行结束后，所有父系对象不是DEF骨骼会放置到第26层，方便手动来更改。
 4. 手工重整所有骨骼继承关系，面部骨骼全部直接设置成parent为头部骨骼，其它骨骼按常规理解设置继承关系。
 5. 手工添加面部骨骼CopyTransform，其它骨骼添加CopyLocation和CopyRotation，目标和次目标都设置为空
@@ -27,6 +29,26 @@
 8. 运行presetDEFRig，会把所有骨骼的connected/inherit location/inherit rotation，以及bendyBone的设置自动完成
 9. 前面工作完成后，可以开始Bake需要导出的动作。
 10. 动作Bake完成以后，disable所有的constraint，然后导出到引擎。
+
+### 伪造世界移动
+
+当我们坐在一个小车上，想沿着公路绕行一个城市时，我们发现小车没有油了，它只能停在原地不动。而此时上帝给予了你移动除了小车以外的整个世界的魔力，那我们要怎么样移动整个世界，来模拟小车沿公路绕行的效果呢？
+
+FakeWorldAnimation.py就是用于完成这类任务的脚本，具体如何使用，请结合脚本内注释以及FakeWorldAnimation.MD里的图示来进行。
+
+### 按材质分类
+
+有时候我们拿到一个模型，想根据材质来对模型里的对象进行分组，这时候就是用到GroupByMaterials这个脚本的时候了
+
+### Bake系列
+
+当你需要批量烘焙，然后应用烘焙后UV时，可以使用以下脚本。
+> AddNewUVMap：批量给对象增加名为"Bake"的UVMap
+>
+>RemoveBakeUV：删除所有名为"Bake"的UVMap
+>
+>RemoveUnBakeUV：删除所有名字不为"Bake"的UVMap
+
 
 
 
