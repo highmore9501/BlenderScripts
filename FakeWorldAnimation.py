@@ -22,28 +22,34 @@ for i in range(frames):
 
     #  计算逆旋转
     r = carPivot.rotation_euler
-    q = mathutils.Euler.to_matrix(r)
-    q.invert()
-    r = mathutils.Matrix.to_euler(q)
-    worldPivot.rotation_euler = r
 
-    # 计算旋转后的世界位移
-    transMatrix = r.to_matrix()
-    worldPivot.location = carInitLocation + transMatrix @ (worldPivotInitLocation - carPivot.location)
+    if r != (0.0, 0.0, 0.0):  # Euler版本，假定carPivot初始位置一定是有旋转值的
+        q = mathutils.Euler.to_matrix(r)
+        q.invert()
+        r = mathutils.Matrix.to_euler(q)
+        worldPivot.rotation_euler = r
 
-    # k帧
-    worldPivot.keyframe_insert('location')
-    worldPivot.keyframe_insert('rotation_euler')
+        # 计算旋转后的世界位移
+        transMatrix = r.to_matrix()
+        worldPivot.location = carInitLocation + transMatrix @ (worldPivotInitLocation - carPivot.location)
 
-    #  四元数版本
-    # r = carPivot.rotation_quaternion
-    # q = mathutils.Euler.to_matrix(r)
-    # q.invert()
-    # r = mathutils.Matrix.to_quaternion(q)
-    # worldPivot.rotation_quaternion = r
-    # transMatrix = r.to_matrix()
-    # worldPivot.location = carInitLocation + transMatrix @ (worldPivotInitLocation - carPivot.location)
-    # worldPivot.keyframe_insert('location')
-    # worldPivot.keyframe_insert('rotation_quaternion')
+        # k帧
+        worldPivot.keyframe_insert('location')
+        worldPivot.keyframe_insert('rotation_euler')
+
+    else:   # 四元数版本
+        r = carPivot.rotation_quaternion
+        q = mathutils.Quaternion.to_matrix(r)
+        q.invert()
+        r = mathutils.Matrix.to_quaternion(q)
+        worldPivot.rotation_quaternion = r
+
+        # 计算旋转后的世界位移
+        transMatrix = r.to_matrix()
+        worldPivot.location = carInitLocation + transMatrix @ (worldPivotInitLocation - carPivot.location)
+
+        # k帧
+        worldPivot.keyframe_insert('location')
+        worldPivot.keyframe_insert('rotation_quaternion')
 
     currentFrame += 1
