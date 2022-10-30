@@ -30,38 +30,59 @@ import bpy
 # 对应的四个角度偏移值为[0, rotationReal,0,-rotationReal]
 
 
-def insertKeyframe(leaf, rotationA, rotationB, noise, leafFrame, totalFrame):
-    frames = [1, int(1 + 0.25 * leafFrame), 1 + 0.5 * leafFrame, 1 + 0.75 * leafFrame]
-    initFrame = random.randint(-0.25 * leafFrame * noise, 0.25 * leafFrame * noise)
+class LeafWithWind():
 
-    for i in range(4):
-        currentFrame = frames[i]
-        if i == 1:
-            while currentFrame < totalFrame:
-                bpy.context.scene.frame_set(currentFrame + initFrame)
-                leaf.rotation_euler = rotationA
-                leaf.keyframe_insert('rotation_euler')
-                frames += leafFrame
-        elif i == 3:
-            while currentFrame < totalFrame:
-                bpy.context.scene.frame_set(
-                    currentFrame + initFrame + int(0.25 * leafFrame * (i + (random.random() - 0.5) * noise)))
-                leaf.rotation_euler = rotationB
-                leaf.keyframe_insert('rotation_euler')
-                frames += leafFrame
-        else:
-            while currentFrame < totalFrame:
-                bpy.context.scene.frame_set(
-                    currentFrame + initFrame + int(0.25 * leafFrame * (i + (random.random() - 0.5) * noise)))
-                leaf.rotation_euler = (0.0, 0.0, 0.0)
-                leaf.keyframe_insert('rotation_euler')
-                frames += leafFrame
+    def __int__(self, leaf, wind):
+        self.leaf = leaf
+        self.wind = wind
+        self.noise = 0.0
+        self.rotationA = (0.0, 0.0, 0.0)
+        self.rotationB = (0.0, 0.0, 0.0)
+        self.leafFrame = 0
+        self.totalFrame = 0
 
-        # 最后为了省事，给第一帧和最后一帧都打上rotation为原始值
-        bpy.context.scene.frame_set(1)
-        leaf.rotation_euler = (0.0, 0.0, 0.0)
-        leaf.keyframe_insert('rotation_euler')
+    def insertKeyframe(self):
+        frames = [1, int(1 + 0.25 * self.leafFrame), 1 + 0.5 * self.leafFrame, 1 + 0.75 * self.leafFrame]
+        initFrame = random.randint(int(-0.25 * self.leafFrame * self.noise), int(0.25 * self.leafFrame * self.noise))
 
-        bpy.context.scene.frame_set(totalFrame)
-        leaf.rotation_euler = (0.0, 0.0, 0.0)
-        leaf.keyframe_insert('rotation_euler')
+        for i in range(4):
+            currentFrame = frames[i]
+            if i == 0:
+                while currentFrame < self.totalFrame:
+                    bpy.context.scene.frame_set(currentFrame + initFrame)
+                    self.leaf.rotation_euler = (0.0, 0.0, 0.0)
+                    self.leaf.keyframe_insert('rotation_euler')
+                    frames += self.leafFrame
+            elif i == 1:
+                while currentFrame < self.totalFrame:
+                    bpy.context.scene.frame_set(
+                        currentFrame + initFrame + int(
+                            0.25 * self.leafFrame * (i + (random.random() - 0.5) * self.noise)))
+                    self.leaf.rotation_euler = self.rotationA
+                    self.leaf.keyframe_insert('rotation_euler')
+                    frames += self.leafFrame
+            elif i == 2:
+                while currentFrame < self.totalFrame:
+                    bpy.context.scene.frame_set(
+                        currentFrame + initFrame + int(
+                            0.25 * self.leafFrame * (i + (random.random() - 0.5) * self.noise)))
+                    self.leaf.rotation_euler = (0.0, 0.0, 0.0)
+                    self.leaf.keyframe_insert('rotation_euler')
+                    frames += self.leafFrame
+            elif i == 3:
+                while currentFrame < self.totalFrame:
+                    bpy.context.scene.frame_set(
+                        currentFrame + initFrame + int(
+                            0.25 * self.leafFrame * (i + (random.random() - 0.5) * self.noise)))
+                    self.leaf.rotation_euler = self.rotationB
+                    self.leaf.keyframe_insert('rotation_euler')
+                    frames += self.leafFrame
+
+            # 最后为了省事，给第一帧和最后一帧都打上rotation为原始值
+            bpy.context.scene.frame_set(1)
+            self.leaf.rotation_euler = (0.0, 0.0, 0.0)
+            self.leaf.keyframe_insert('rotation_euler')
+
+            bpy.context.scene.frame_set(self.totalFrame)
+            self.leaf.rotation_euler = (0.0, 0.0, 0.0)
+            self.leaf.keyframe_insert('rotation_euler')
