@@ -48,7 +48,15 @@ FakeWorldAnimation.py就是用于完成这类任务的脚本，具体如何使�
 >RemoveBakeUV：删除所有名为"Bake"的UVMap
 >
 >RemoveUnBakeUV：删除所有名字不为"Bake"的UVMap
+>
 
+### 其它
+
+CloudsWithPath：基于轨道的云朵动画
+cloudsWithWind：基于风的云朵动画
+exportAvatarWithArmature:批量导出人物组件与骨骼的脚本
+ExportMultiGltfFiles：批量导出Gltf文件，别人的脚本，为了配合blender3.3的使用，改了里面一个参数
+ParticleToAnimation：粒子动画转glb，别人的脚本
 
 
 
