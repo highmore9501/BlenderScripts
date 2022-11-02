@@ -1,9 +1,9 @@
+import math
 import random
+import time
 
 import bpy
 import mathutils
-import faulthandler
-faulthandler.enable()
 
 
 # 假定有一片叶子，通常情况下它就是放在一个矩形图片上，带有alpha纹理。它的朝向就是图片的朝向，设为vectorLeaf.
@@ -41,99 +41,102 @@ class LeafWithWind:
         self.vectorLeafMax = mathutils.Vector((0, 0, 1))
         self.vectorLeafMin = mathutils.Vector((0, 0, 1))
         self.scaleMax = 1
+        self.scaleInit = 1
 
-    def calculateParms(self, leaf, wind,leafFrameFactor=1, windStrength=1):
-        x = 1
-        y = 1
-        z = 1
-        if leaf.dimensions.y:
-            y = leaf.dimensions.y
-        if leaf.dimensions.x:
-            x = leaf.dimensions.x
-        if leaf.dimensions.z:
-            z = leaf.dimensions.z
-        self.leafFrame = int(leafFrameFactor * x * y * z)
-        self.vectorLeaf = leaf.rotation_euler
-        self.vectorLeafMax = leaf.rotation_euler
-        self.vectorLeafMin = leaf.rotation_euler
+    def calculateParms(self, leaf, wind, leafFrameFactor=1, windStrength=1):
+        x = leaf.dimensions.x
+        y = leaf.dimensions.y
+        z = leaf.dimensions.z
+        self.leafFrame = int(leafFrameFactor * max([x, y, z]))
+        self.vectorLeaf = mathutils.Vector((leaf.rotation_euler[0], leaf.rotation_euler[1], leaf.rotation_euler[2]))
+        self.vectorWind = mathutils.Vector((wind.rotation_euler[0], wind.rotation_euler[1], wind.rotation_euler[2]))
         self.vectorWind = mathutils.Euler.to_matrix(wind.rotation_euler) @ mathutils.Vector((0, 0, 1))
-        vectorL = mathutils.Vector((self.vectorLeaf[0], self.vectorLeaf[1], self.vectorLeaf[2]))
-        vectorW = mathutils.Vector((self.vectorWind[0], self.vectorWind[1], self.vectorWind[2]))
 
-        self.vectorLeafMax = vectorL.lerp(vectorW, windStrength * 0.1)
-        vectorW.negate()
-        self.vectorLeafMin = vectorL.lerp(vectorW, windStrength * 0.1)
-        self.scaleMax = 1 + 0.25 * windStrength * 0.1
+        self.vectorLeafMax = self.vectorLeaf.lerp(self.vectorWind, windStrength * 0.1)
+        self.vectorWind.negate()
+        self.vectorLeafMin = self.vectorLeaf.lerp(self.vectorWind, windStrength * 0.1)
+        self.scaleInit = leaf.scale[2]
+        self.scaleMax = (1 + 0.25 * windStrength * 0.1) * self.scaleInit
         self.noise = 0.25 * windStrength * 0.1
+        if self.leafFrame > 0.5 * self.totalFrame:  # 幅度不能太大，至少也要在一个周期内来回摆动一次
+            self.leafFrame = int(0.5 * self.totalFrame)
 
     def insertKeyframe(self, leaf):
-        frames = [1, int(1 + 0.25 * self.leafFrame), int(1 + 0.5 * self.leafFrame), int(1 + 0.75 * self.leafFrame)]
-        initFrame = random.randint(int(-self.leafFrame * self.noise), int(self.leafFrame * self.noise))
+        frames = [1, int(1 + 0.25 * self.leafFrame), int(1 + 0.5 * self.leafFrame), int(1 + 0.75 * self.leafFrame),
+                  self.leafFrame]
+        initFrame = random.randint(int(-self.leafFrame * self.noise * 0.25), int(self.leafFrame * self.noise * 0.25))
 
-        for i in range(0, 4):
-            currentFrame = frames[i]
-            if i == 0:
+        if self.leafFrame > 5:  # 太小的叶子不做动画，不然会有一批小叶子差不多同频率振动看上去很奇怪
+            for i in range(0, 4):
+                currentFrame = frames[i]
                 while currentFrame < self.totalFrame:
-                    bpy.context.scene.frame_set(currentFrame + initFrame)
-                    leaf.rotation_euler = self.vectorLeaf
-                    leaf.scale[2] = 1
-                    leaf.keyframe_insert('scale')
-                    leaf.keyframe_insert('rotation_euler')
-                    currentFrame += self.leafFrame
-            elif i == 1:
-                while currentFrame < self.totalFrame:
-                    bpy.context.scene.frame_set(
-                        currentFrame + initFrame + int(
-                            0.25 * self.leafFrame * (1 + (random.random() - 0.5) * self.noise)))
-                    leaf.rotation_euler = self.vectorLeafMax
-                    leaf.scale[2] = self.scaleMax
-                    leaf.keyframe_insert('scale')
-                    leaf.keyframe_insert('rotation_euler')
-                    currentFrame += self.leafFrame
-            elif i == 2:
-                while currentFrame < self.totalFrame:
-                    bpy.context.scene.frame_set(
-                        currentFrame + initFrame + int(
-                            0.25 * self.leafFrame * (2 + (random.random() - 0.5) * self.noise)))
-                    leaf.rotation_euler = self.vectorLeaf
-                    leaf.scale[2] = 1
-                    leaf.keyframe_insert('scale')
-                    leaf.keyframe_insert('rotation_euler')
-                    currentFrame += self.leafFrame
-            elif i == 3:
-                while currentFrame < self.totalFrame:
-                    bpy.context.scene.frame_set(
-                        currentFrame + initFrame + int(
-                            0.25 * self.leafFrame * (3 + (random.random() - 0.5) * self.noise)))
-                    leaf.rotation_euler = self.vectorLeafMin
-                    leaf.scale[2] = self.scaleMax
-                    leaf.keyframe_insert('scale')
-                    leaf.keyframe_insert('rotation_euler')
-                    currentFrame += self.leafFrame
+                    if i == 0 or i == 4:
+                        bpy.context.scene.frame_set(currentFrame + initFrame)
+                        leaf.rotation_euler = self.vectorLeaf
+                        leaf.scale[2] = self.scaleInit
+                        leaf.keyframe_insert('scale')
+                        leaf.keyframe_insert('rotation_euler')
+                        currentFrame += self.leafFrame
+                    elif i == 1:
+                        bpy.context.scene.frame_set(
+                            currentFrame + initFrame + int(
+                                0.25 * self.leafFrame * (1 + (random.random() - 0.5) * self.noise)))
+                        leaf.rotation_euler = self.vectorLeafMax
+                        leaf.scale[2] = self.scaleMax
+                        leaf.keyframe_insert('scale')
+                        leaf.keyframe_insert('rotation_euler')
+                        currentFrame += self.leafFrame
+                    elif i == 2:
+                        bpy.context.scene.frame_set(
+                            currentFrame + initFrame + int(
+                                0.25 * self.leafFrame * (1 + (random.random() - 0.5) * self.noise)))
+                        leaf.rotation_euler = self.vectorLeaf
+                        leaf.scale[2] = self.scaleInit
+                        leaf.keyframe_insert('scale')
+                        leaf.keyframe_insert('rotation_euler')
+                        currentFrame += self.leafFrame
+                    else:
+                        bpy.context.scene.frame_set(
+                            currentFrame + initFrame + int(
+                                0.25 * self.leafFrame * (1 + (random.random() - 0.5) * self.noise)))
+                        leaf.rotation_euler = self.vectorLeafMin
+                        leaf.scale[2] = self.scaleMax
+                        leaf.keyframe_insert('scale')
+                        leaf.keyframe_insert('rotation_euler')
+                        currentFrame += self.leafFrame
 
-        # 最后为了省事，给第一帧和最后一帧都打上rotation为原始值
-        bpy.context.scene.frame_set(1)
-        leaf.rotation_euler = self.vectorLeaf
-        leaf.scale[2] = 1
-        leaf.keyframe_insert('scale')
-        leaf.keyframe_insert('rotation_euler')
+            # 偷懒不可取，重新计算了公式以后，给出第一帧和最后一帧的值，这两个值取一样，方便动画循环
+            for frame in [1, self.totalFrame]:
+                bpy.context.scene.frame_set(frame)
+                leaf.rotation_euler = self.vectorLeafMin + (self.vectorLeafMax - self.vectorLeafMin) * (
+                        0.5 - 0.5 * math.sin(2 * 3.14159 * (1 - initFrame) / self.totalFrame))
+                leaf.scale[2] = self.scaleInit + (self.scaleMax - self.scaleInit) * (
+                        (1 - initFrame) % int(0.5 * self.totalFrame)) / int(
+                    0.5 * self.totalFrame)
+                leaf.keyframe_insert('scale')
+                leaf.keyframe_insert('rotation_euler')
 
-        bpy.context.scene.frame_set(self.totalFrame)
-        leaf.scale[2] = 1
-        leaf.keyframe_insert('scale')
-        leaf.rotation_euler = self.vectorLeaf
-        leaf.keyframe_insert('rotation_euler')
+            return 1
+        else:
+            return 0
 
 
 wind = bpy.data.objects['Wind']
 windStrength = wind.field.strength
 noise = wind.field.noise
-totalFrame = 200
-leafFrameFactor = 20
+totalFrame = 400
+leafFrameFactor = 100
+leafWithWind = LeafWithWind(totalFrame=totalFrame)
+totalNumber = len(bpy.context.selected_objects)
+count = 0
+finished = 0
+start = time.time()
 
 for leaf in bpy.context.selected_objects:
-    if leaf.type == 'MESH' and not leaf.animation_data:
-        leafWithWind = LeafWithWind(totalFrame=totalFrame)
+    if leaf.type == 'MESH':
         leafWithWind.calculateParms(leaf, wind, leafFrameFactor, windStrength)
-        leafWithWind.insertKeyframe(leaf)
-        del leafWithWind
+        finished += leafWithWind.insertKeyframe(leaf)
+        count += 1
+        print("当前进度为{:.2f}%".format(count / totalNumber * 100))
+
+print("任务已完成，共{}个目标，完成{}个动画,总费时{:.2f}秒".format(totalNumber, finished, time.time() - start))
