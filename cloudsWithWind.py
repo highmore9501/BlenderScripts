@@ -5,45 +5,10 @@
 # 轨迹与云朵初始位置同直线(废话)
 
 import math
-# 先计算可以求得的系数：
-#
-# 先按风向windDirection和物体当前位置cloud.location求得与区域盒子的两个交汇点P0,P1，这两个点满足以下条件：
-# P0 = cloud.location + t0 * vectorWind * factorSpeed * windStrength
-# P1 = cloud.location + (t0 + cloudFrame) * vectorWind * factorSpeed * windStrength
-# (P1+P0) 点乘 vectorWind = 0
-#
-# 现在来展开上面三项：
-# 设Cloud.location = (x1,y1,z1), windVector = (x2,y2,z2),已知n的大小，求t0:
-# （2*Cloud.location +2(t0+windFrame)vectorWind）@ VectorWind = 0
-# 根据点乘公式 [x1x2+y1y2+z1z2 =0]
-# 所以有：
-# (x1+(t0+windFrame)x2)x2 + (y1+(t0+windFrame)y2)y2 + (z1+(t0+windFrame)z2)z2 = 0
-# t0 = [x1x2+y1y2+z1z2 / (x2^2 +y2^2+z2^2)] - windFrame
-#
-# 所以可以在m*windFrame+1以及m*windFrame处插帧(m为大于等于0的整数)，对应的位置分别为P0,P1
-#
-# 关于旋转：
-# 旋转速度与风力强度成正比
-# 旋转只需要插两个帧，就是第一帧和最后一帧，第一帧为0，最后一帧直接插FinalRotation = FactorRotations * windStrength * TotalFrames
-#
-# 关于缩放：
-# 缩放大小取决于Noise，设最大缩放值scaleMax = FactorScale * Noise
-# 完成一次完整缩放周期需要的帧数与风力强度成反比，与云朵大小成正比，可以取
-# cloudFrame = Max(object . x * object . y * object . z ) / (windStrength * factorSpeed)
-# 在一个缩放周期内，第一帧，中间那一帧，还有最后一帧需要插帧，插入的scale值分别为0，scaleMax，0
-#
-# 总结上面，每一个周期有三个点需要插帧，分别是第一帧，正中间那一帧，最后一帧。
-# 第一帧位置为P0,缩放为0
-# 中间那一帧位置为0.5 *(P1 + P0)，缩放为ScaleMax
-# 最后一帧位置为P1，缩放为0
-# 以上可以推导出当帧数为frame时，
-# 云朵当前位置为P0+(P1-P0)*（frame-1）/windFrame
-# 云朵当前的缩放值为abs(0.5*windFrame - frame) * scaleMax
-# 至于旋转帧只在全局第一帧和最后一帧写入，第一帧为0，最后一帧为FinalRotation
 # 现在，给每一朵云增加一个随机初始帧initFrame(<windFrames),让整个动画往前平移initFrame帧，所以出当帧数为frame时：
-# 云朵当前位置为P0+(P1-P0)*（frame + initFrame -1）/windFrame
-# 云朵当前的缩放值为abs(0.5*windFrame - frame - initFrame) * scaleMax
-# 旋转帧仍然只在全局第一帧和最后一帧写入，第一帧为0，最后一帧为FinalRotation
+# 云朵当前位置为P0+(P1-P0) *((frame+initFrame-1) %windFrame) / windFrame
+# 云朵当前的缩放值为2 * (frame+initFrame)% (0.5*windFrame))) * scaleMax/windFrame
+# 旋转帧仍然只在全局第一帧和最后一帧写入，第一帧为0，最后一帧为360
 #
 # 综上所述，一朵云需要插帧的点分别是[1,TotalFrame,initFrame,initFrame+0.5*windFrame,initFrame+windFrame-1]五处
 import random
@@ -53,23 +18,54 @@ import bpy
 import mathutils
 
 
+# 先计算可以求得的系数：
+#
+# 先按P0P1线段总长L和物体当前位置cloud.location求得与区域盒子的两个交汇点P0,P1，这两个点满足以下条件：
+#  1. P1- P0 = L * vectorWind
+#  2. (P1 + P0) @ vectorWind = 0
+#  3. cloud.location = P0 + (P1-P0) * t
+# 结合1，3，可以得到
+# P0 = cloud.location - L * vectorWind * t
+# P1 = L * vectorWind * (1-t) + cloud.location
+# 再结合2，有
+# (2*cloud.location - 2 * L * vectorWind * t + L * vectorWind) @ vectorWind = 0
+# 设cloud.location = (x1,y1,z1), vectorWind = (x2,y2,z2)
+# 有: x2 * (2x1-2t*L*X2+L*X2) + y2 * (2y1-2t*L*y2+L*y2) +z2 * (2z1-2t*L*z2+L*z2) = 0
+# 2x1x2  +L* x2^2 + 2y1y2 +L* y2^2 + 2z1z2 +L* z2^2 = 2t*L(x2^2 + y2^2 + z2^2)
+# t = (2x1x2  +L* x2^2 + 2y1y2 +L* y2^2 + 2z1z2 +L* z2^2) / 2L(x2^2 + y2^2 + z2^2)
+# 求得t以后，就可以算出来P0和P1
+# 每朵云的周期windFrame = L * Speed / windStrength  ，周期不能小于某固定值，否则太快显得不真实
+#  速度应当与云朵大小成反比，所以speed = factorSpeed / (cloud.volume)
+# 关于旋转：
+# 旋转速度与风力强度成正比
+# 旋转只需要插两个帧，就是第一帧和最后一帧，第一帧为0，最后一帧直接插FinalRotation = FactorRotations * windStrength * TotalFrames
+# 关于缩放：
+# 在一个缩放周期内，第一帧，中间那一帧，还有最后一帧需要插帧，插入的scale值分别为0，scaleMax，0
+# 总结上面，每一个周期有三个点需要插帧，分别是第一帧，正中间那一帧，最后一帧。
+# 第一帧位置为P0,缩放为0
+# 中间那一帧位置为缩放为ScaleMax
+# 最后一帧位置为P1，缩放为0
+# 以上可以推导出当帧数为frame时，
+# 云朵当前位置为P0+(P1-P0) *((frame-1) %windFrame) / windFrame
+# 云朵当前的缩放值为2 * (frame% (0.5*windFrame)) * scaleMax/windFrame
+# 至于旋转帧只在全局第一帧和最后一帧写入，第一帧为0，最后一帧为FinalRotation
+
+
 class CloudWithWind:
     def __init__(self):
         self.factorScale = 20
         self.factorSpeed = 1
         self.p0 = mathutils.Vector((0.0, 0.0, 0.0))
         self.p1 = mathutils.Vector((0.0, 0.0, 0.0))
-        self.cloudFrame = 100
+        self.L = 1000
         self.vectorWind = mathutils.Vector((0, 0, 1))
         self.scaleMax = 50
+        self.cloudFrame = 100
+        self.minFrame = 800
 
     def calculateWindPrams(self, cloud, wind):
         self.vectorWind = mathutils.Vector((wind.rotation_euler[0], wind.rotation_euler[1], wind.rotation_euler[2]))
         self.vectorWind = mathutils.Euler.to_matrix(wind.rotation_euler) @ mathutils.Vector((0, 0, 1))
-        self.cloudFrame = 100 * int(max(cloud.dimensions.x, cloud.dimensions.y, cloud.dimensions.z) / (
-                self.factorSpeed * wind.field.strength))
-        if self.cloudFrame < 1500:   # 云朵周期太短会不真实，所以小于1500的强制设置为1500帧
-            self.cloudFrame = 1500
         cloudLocation = cloud.location
         x1 = cloudLocation[0]
         y1 = cloudLocation[1]
@@ -77,14 +73,22 @@ class CloudWithWind:
         x2 = self.vectorWind[0]
         y2 = self.vectorWind[1]
         z2 = self.vectorWind[2]
-        t0 = (x1 * x2 + y1 * y2 + z1 * z2 / (x2 * x2 + y2 * y2 + z2 * z2)) - self.cloudFrame
+        t0 = (
+                     2 * x1 * x2 + self.L * x2 * x2 + 2 * y1 * y2 + self.L * y2 * y2 + 2 * z1 * z2 + self.L * z2 * z2) / (
+                     2 * self.L * (
+                     x2 * x2 + y2 * y2 + z2 * z2))
 
-        self.p0 = cloudLocation + t0 * self.vectorWind * self.factorSpeed * wind.field.strength
-        self.p1 = cloudLocation + (t0 + self.cloudFrame) * self.vectorWind * self.factorSpeed * wind.field.strength
+        self.p0 = cloud.location - self.L * self.vectorWind * t0
+        self.p1 = self.L * self.vectorWind * (1 - t0) + cloud.location
 
         self.scaleMax = self.factorScale * wind.field.noise
-        print('当前云朵是{},它的P0值是{},P1值是{},周期帧数是{},最大变化值是{}'.format(cloud.name, self.p0, self.p1,
-                                                                                      self.cloudFrame, self.scaleMax))
+        self.cloudFrame = int(self.L * self.factorSpeed / (
+                wind.field.strength * cloud.dimensions.x * cloud.dimensions.y * cloud.dimensions.z))
+
+        if self.cloudFrame < self.minFrame:
+            self.cloudFrame = self.minFrame
+
+        print('当前目标是{}, 周期值为{}'.format(cloud.name, self.cloudFrame))
 
     def insertKeyFrame(self, cloud, totalFrame=4000):
         """
@@ -92,7 +96,7 @@ class CloudWithWind:
         :param cloud: 需要插帧的物体
         :param totalFrame: 总帧数
         """
-        initFrame = random.randint(0, int(0.5 * self.cloudFrame))
+        initFrame = random.randint(0, self.cloudFrame)
         frames = [initFrame, initFrame + int(0.5 * self.cloudFrame), initFrame + self.cloudFrame - 1]
         for i in range(3):
             frame = frames[i]
@@ -148,13 +152,15 @@ class CloudWithWind:
 
 
 wind = bpy.data.objects['Wind']
-windStrength = wind.field.strength
-noise = wind.field.noise
-totalFrame = 4000
 
 cloudWithWind = CloudWithWind()
 cloudWithWind.factorScale = 20  # 决定云朵最大变化值
-cloudWithWind.factorSpeed = 1  # 速度越快云的周期越短
+cloudWithWind.L = 2000  # 云朵运行的轨道长度
+cloudWithWind.factorSpeed = 1  # 速度越快云的周期越短，但这个参数最终还是受最小周期值影响
+cloudWithWind.minFrame = 800  # 最小周期800帧
+
+totalFrame = 4000  # 动画总长4000帧
+
 totalNumber = len(bpy.context.selected_objects)
 count = 0
 finished = 0
