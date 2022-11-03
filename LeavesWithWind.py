@@ -5,7 +5,7 @@ import time
 import bpy
 import mathutils
 
-
+# 原理：
 # 假定有一片叶子，通常情况下它就是放在一个矩形图片上，带有alpha纹理。它的朝向就是图片的朝向，设为vectorLeaf.
 # 再假定有一个风源，拥有windStrength,vectorWind,Noise三个参数,windStrength大于0小于10，Noise大于0于小0.25。
 # 当风影响叶子时，影响的强度与vectorLeaf和vectorWind形成的夹角相关，当两者垂直时为最大，当两者平行时为0，所以实际上被风吹以后的矢量就是介于vectorWind和VectorLeaf之间的一个插值，插值的系数是当前风力强度:
@@ -28,6 +28,13 @@ import mathutils
 # 至于全局第一帧和最后一帧的角度，为了省事，全都设置为VectorLeaf
 
 # 现在，加上缩放的考量。在叶子处于两端极值时，Z轴方向上的缩放为1+0.25*windStrength*0.1，也就是说缩放的极限为原大小的1.25倍。在其它插值点上，缩放值均为1.
+
+# 使用方法：
+# 先用粒子生成器的方式生成需要摆动的叶子，具体方法可自行搜索。记得把叶片的轴点设置在叶柄处。叶片生成以后将它们实体化。
+# 在场景中增加一个风源，设置强度为0-10，noise为0-1。
+# 手动在脚本里设置totalFrame总帧数，leafFrameFactor叶片帧系数。后者越大，叶片总体的晃动周期就越长，越小则晃动越频繁。
+# 都设置好以后，选中所有要加动画的叶片，运行脚本即可。
+# 如果要加动画的叶片过多，在运行脚本之前可以先打开windows->Toggle System Console，以了解脚本运行进度。
 
 
 class LeafWithWind:
@@ -59,7 +66,7 @@ class LeafWithWind:
         self.scaleMax = (1 + 0.25 * windStrength * 0.1) * self.scaleInit
         self.noise = 0.25 * windStrength * 0.1
         if self.leafFrame > 0.5 * self.totalFrame:  # 幅度不能太大，至少也要在一个周期内来回摆动一次
-            self.leafFrame = int(0.5 * self.totalFrame)
+            self.leafFrame = int(0.3 * self.totalFrame)
 
     def insertKeyframe(self, leaf):
         frames = [1, int(1 + 0.25 * self.leafFrame), int(1 + 0.5 * self.leafFrame), int(1 + 0.75 * self.leafFrame),
