@@ -64,7 +64,7 @@ class LeafWithWind:
     def insertKeyframe(self, leaf):
         frames = [1, int(1 + 0.25 * self.leafFrame), int(1 + 0.5 * self.leafFrame), int(1 + 0.75 * self.leafFrame),
                   self.leafFrame]
-        initFrame = random.randint(int(-self.leafFrame * self.noise * 0.25), int(self.leafFrame * self.noise * 0.25))
+        initFrame = random.randint(0, self.leafFrame)
 
         if self.leafFrame > 5:  # 太小的叶子不做动画，不然会有一批小叶子差不多同频率振动看上去很奇怪
             for i in range(0, 4):
