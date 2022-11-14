@@ -1,10 +1,11 @@
 import math
-
 import random
 import time
 
 import bpy
 import mathutils
+
+
 # 原理：
 # 已知一个云朵初始位置cloud，一个风源，分别有风力强度WindStrength,扰动参数Noise,风向vectorWind，来计算云朵的行动轨迹。该轨迹符合以下要求：
 # 轨迹的方向与风源的指向相同
@@ -52,7 +53,6 @@ import mathutils
 
 class CloudWithWind:
     def __init__(self):
-        self.factorScale = 20
         self.factorSpeed = 1
         self.p0 = mathutils.Vector((0.0, 0.0, 0.0))
         self.p1 = mathutils.Vector((0.0, 0.0, 0.0))
@@ -62,28 +62,14 @@ class CloudWithWind:
         self.cloudFrame = 100
         self.minFrame = 800
 
-
     def calculateWindPrams(self, cloud, wind):
         self.vectorWind = mathutils.Vector((wind.rotation_euler[0], wind.rotation_euler[1], wind.rotation_euler[2]))
         self.vectorWind = mathutils.Euler.to_matrix(wind.rotation_euler) @ mathutils.Vector((0, 0, 1))
-        cloudLocation = cloud.location
-        x1 = cloudLocation[0]
-        y1 = cloudLocation[1]
-        z1 = cloudLocation[2]
-        x2 = self.vectorWind[0]
-        y2 = self.vectorWind[1]
-        z2 = self.vectorWind[2]
-        t0 = (
-                     2 * x1 * x2 + self.L * x2 * x2 + 2 * y1 * y2 + self.L * y2 * y2 + 2 * z1 * z2 + self.L * z2 * z2) / (
-                     2 * self.L * (
-                     x2 * x2 + y2 * y2 + z2 * z2))
 
-        self.p0 = cloud.location - self.L * self.vectorWind * t0
-        self.p1 = self.L * self.vectorWind * (1 - t0) + cloud.location
+        self.p0 = cloud.location
+        self.p1 = self.p0 + self.L * self.vectorWind
 
-        self.scaleMax = self.factorScale * wind.field.noise
-        self.cloudFrame = 5 * int(self.L * self.factorSpeed / (
-                wind.field.strength * cloud.dimensions.x * cloud.dimensions.y * cloud.dimensions.z))
+        self.cloudFrame = int((0.5 + random.random()) * self.cloudFrame)
 
         if self.cloudFrame < self.minFrame:
             self.cloudFrame = self.minFrame
@@ -97,8 +83,9 @@ class CloudWithWind:
         :param totalFrame: 总帧数
         """
         initFrame = random.randint(0, self.cloudFrame)
-        if self.cloudFrame > totalFrame:   # 云朵周期不得超过整个动画的周期
-            self.cloudFrame = int(0.5*totalFrame)
+        scaleOrg = cloud.scale[0]
+        if self.cloudFrame > totalFrame:  # 云朵周期不得超过整个动画的周期
+            self.cloudFrame = int(0.5 * totalFrame)
         frames = [initFrame, initFrame + int(0.5 * self.cloudFrame), initFrame + self.cloudFrame - 1]
         for i in range(3):
             frame = frames[i]
@@ -106,36 +93,36 @@ class CloudWithWind:
                 while frame <= totalFrame:
                     bpy.context.scene.frame_set(frame)
                     cloud.location = self.p0
-                    cloud.scale[0] = 0
-                    cloud.scale[1] = 0
-                    cloud.scale[2] = 0
+                    cloud.scale[0] = scaleOrg
+                    cloud.scale[1] = scaleOrg
+                    cloud.scale[2] = scaleOrg
                     cloud.keyframe_insert('scale')
                     cloud.keyframe_insert('location')
                     frame += self.cloudFrame
             elif i == 1:
                 while frame <= totalFrame:
                     bpy.context.scene.frame_set(frame)
-                    cloud.scale[0] = self.scaleMax
-                    cloud.scale[1] = self.scaleMax
-                    cloud.scale[2] = self.scaleMax
+                    cloud.scale[0] = self.scaleMax * scaleOrg
+                    cloud.scale[1] = self.scaleMax * scaleOrg
+                    cloud.scale[2] = self.scaleMax * scaleOrg
                     cloud.keyframe_insert('scale')
                     frame += self.cloudFrame
             else:
                 while frame <= totalFrame:
                     bpy.context.scene.frame_set(frame)
                     cloud.location = self.p1
-                    cloud.scale[0] = 0
-                    cloud.scale[1] = 0
-                    cloud.scale[2] = 0
+                    cloud.scale[0] = scaleOrg
+                    cloud.scale[1] = scaleOrg
+                    cloud.scale[2] = scaleOrg
                     cloud.keyframe_insert('scale')
                     cloud.keyframe_insert('location')
                     frame += self.cloudFrame
 
         bpy.context.scene.frame_set(1)
         cloud.location = self.p0
-        cloud.scale[0] = 0
-        cloud.scale[1] = 0
-        cloud.scale[2] = 0
+        cloud.scale[0] = scaleOrg
+        cloud.scale[1] = scaleOrg
+        cloud.scale[2] = scaleOrg
         cloud.keyframe_insert('scale')
         cloud.keyframe_insert('location')
 
@@ -147,7 +134,7 @@ class CloudWithWind:
         cloud.location = self.p0.lerp(self.p1, (totalFrame + initFrame - 1) / self.cloudFrame)
         currentScale = abs(
             0.5 * self.cloudFrame - (totalFrame + initFrame) % (0.5 * self.cloudFrame)) * self.scaleMax / (
-                               0.5 * self.cloudFrame)
+                               0.5 * self.cloudFrame) * scaleOrg
         cloud.scale[0] = currentScale
         cloud.scale[1] = currentScale
         cloud.scale[2] = currentScale
@@ -163,12 +150,12 @@ class CloudWithWind:
 wind = bpy.data.objects['Wind']
 
 cloudWithWind = CloudWithWind()
-cloudWithWind.factorScale = 30 # 决定云朵最大变化值
-cloudWithWind.L = 2000  # 云朵运行的轨道长度
+cloudWithWind.scaleMax = 2  # 决定云朵最大变化值
+cloudWithWind.L = 200  # 云朵运行的轨道长度
 cloudWithWind.factorSpeed = 1  # 速度越快云的周期越短，但这个参数最终还是受最小周期值影响
-cloudWithWind.minFrame = 1200 # 最小周期800帧
+cloudWithWind.minFrame = 80  # 最小周期80帧
 
-totalFrame = 4000  # 动画总长4000帧
+totalFrame = 900  # 动画总长4000帧
 
 totalNumber = len(bpy.context.selected_objects)
 count = 0
