@@ -155,7 +155,7 @@ cloudWithWind.L = 200  # 云朵运行的轨道长度
 cloudWithWind.factorSpeed = 1  # 速度越快云的周期越短，但这个参数最终还是受最小周期值影响
 cloudWithWind.minFrame = 80  # 最小周期80帧
 
-totalFrame = 900  # 动画总长4000帧
+totalFrame = 1200  # 动画总长4000帧
 
 totalNumber = len(bpy.context.selected_objects)
 count = 0

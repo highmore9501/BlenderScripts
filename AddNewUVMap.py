@@ -8,3 +8,5 @@ for obj in bpy.context.selected_objects:
     if obj.type == 'MESH' and "Bake" not in obj.data.uv_layers:
         obj.data.uv_layers.new(name="Bake")
         obj.data.uv_layers['Bake'].active = True
+    elif "Bake" in obj.data.uv_layers:
+        obj.data.uv_layers['Bake'].active = True
