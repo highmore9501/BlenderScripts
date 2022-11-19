@@ -8,10 +8,10 @@ class AddNewUVOperator(bpy.types.Operator):
     bl_idname = 'opr.object_add_new_uv_operator'
     bl_label = 'Object AddNewUV'
 
-    newUVmap = bpy.context.scene.NewUVMap
-
     def execute(self, context):
+        newUVmap = context.scene.NewUVMap
+
         for obj in bpy.context.selected_objects:
-            if obj.type == 'MESH' and self.newUVmap not in obj.data.uv_layers:
-                obj.data.uv_layers.new(name=self.newUVmap)
-            obj.data.uv_layers[self.newUVmap].active = True
+            if obj.type == 'MESH' and newUVmap not in obj.data.uv_layers:
+                obj.data.uv_layers.new(name=newUVmap)
+            obj.data.uv_layers[newUVmap].active = True
