@@ -1,7 +1,7 @@
 import bpy
 
-from GroupByMaterials import SortByMatOperator
-from AddNewUVMap import AddNewUVOperator
+from .GroupByMaterials import SortByMatOperator
+from .AddNewUVMap import AddNewUVOperator
 
 bl_info = {
     # required
