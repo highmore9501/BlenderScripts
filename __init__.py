@@ -36,43 +36,55 @@ class HippoToolPanel(bpy.types.Panel):
     bl_region_type = 'UI'
     bl_category = 'HippoTools'
 
+    @classmethod
+    def poll(cls, context):
+        obj = context.object
+
+        if obj is not None:
+            if obj.mode == "OBJECT":
+                return True
+
+        return False
+
     def draw(self, context):
-        self.layout.label(text='清空约束', icon='CONSTRAINT')
-        col = self.layout.column()
-        col.operator(RemoveConstraintsOperator.bl_idname, text='清空所有约束器')
 
-        self.layout.label(text='移除空顶点组', icon='GROUP_VERTEX')
-        col = self.layout.column()
-        col.operator(RemoveZeroGroupOperator.bl_idname, text='删除所有空值顶点组')
+        layout = self.layout
 
-        self.layout.label(text='按材质分类', icon='NODE_MATERIAL')
-        col = self.layout.column()
-        col.operator(SortByMatOperator.bl_idname, text='一键分类')
+        layout.label(text='清空数据')
+        row = layout.row()
+        col = row.column()
+        col.operator(RemoveConstraintsOperator.bl_idname, text='约束器', icon='CONSTRAINT')
 
-        self.layout.label(text='清空材质', icon='SHADING_SOLID')
-        col = self.layout.column()
-        col.operator(RemoveMatOperator.bl_idname, text='清空所有材质')
+        col = row.column()
+        col.operator(RemoveZeroGroupOperator.bl_idname, text='空顶点组', icon='GROUP_VERTEX')
 
-        self.layout.label(text='新增UV', icon='FILE_NEW')
-        col = self.layout.column()
+        col = row.column()
+        col.operator(RemoveMatOperator.bl_idname, text='材质', icon='SHADING_SOLID')
+
+        layout.label(text='按材质分类')
+        col = layout.column()
+        col.operator(SortByMatOperator.bl_idname, text='一键分类', icon='NODE_MATERIAL')
+
+        layout.label(text='新增UV')
+        col = layout.column()
         row = col.row()
         row.prop(context.scene, 'NewUVMap')
         row = col.row()
-        row.operator(AddNewUVOperator.bl_idname, text='一键新增UV')
+        row.operator(AddNewUVOperator.bl_idname, text='一键新增UV', icon='FILE_NEW')
 
-        self.layout.label(text='删除UV', icon='REMOVE')
-        col = self.layout.column()
+        layout.label(text='删除UV')
+        col = layout.column()
         row = col.row()
         row.prop(context.scene, 'RemoveUVMap')
         row = col.row()
-        row.operator(RemoveUVOperator.bl_idname, text='一键删除UV')
+        row.operator(RemoveUVOperator.bl_idname, text='一键删除UV', icon='REMOVE')
 
-        self.layout.label(text='删除其它UV', icon='PINNED')
-        col = self.layout.column()
+        layout.label(text='删除其它UV')
+        col = layout.column()
         row = col.row()
         row.prop(context.scene, 'RestUVMap')
         row = col.row()
-        row.operator(RemoveOtherUVOperator.bl_idname, text='一键删除其它UV')
+        row.operator(RemoveOtherUVOperator.bl_idname, text='一键删除其它UV', icon='PINNED')
 
 
 CLASSES = [
