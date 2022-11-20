@@ -5,6 +5,8 @@ from .RemoveMat import RemoveMatOperator  # 删除所有材质
 from .AddNewUVMap import AddNewUVOperator  # 一键新增UV
 from .RemoveBakeUV import RemoveUVOperator  # 一键删除UV
 from .RemoveUnBakeUV import RemoveOtherUVOperator  # 一键删除其它UV
+from .RemoveConstraints import RemoveConstraintsOperator  # 一键清除所有约束
+from .RemoveZero import RemoveZeroGroupOperator
 
 bl_info = {
     # required
@@ -15,7 +17,7 @@ bl_info = {
     # optional
     'version': (1, 0, 0),
     'author': 'HaiKouBigHippo',
-    'description': 'A set of scripts used while batch baking.批量烘焙时使用的一些脚本集。',
+    'description': ' 个人常用的一些脚本集。',
 }
 
 PROPS = [
@@ -35,6 +37,14 @@ class HippoToolPanel(bpy.types.Panel):
     bl_category = 'HippoTools'
 
     def draw(self, context):
+        self.layout.label(text='清空约束', icon='CONSTRAINT')
+        col = self.layout.column()
+        col.operator(RemoveConstraintsOperator.bl_idname, text='清空所有约束器')
+
+        self.layout.label(text='移除空顶点组', icon='GROUP_VERTEX')
+        col = self.layout.column()
+        col.operator(RemoveZeroGroupOperator.bl_idname, text='删除所有空值顶点组')
+
         self.layout.label(text='按材质分类', icon='NODE_MATERIAL')
         col = self.layout.column()
         col.operator(SortByMatOperator.bl_idname, text='一键分类')
@@ -71,7 +81,9 @@ CLASSES = [
     AddNewUVOperator,
     RemoveUVOperator,
     RemoveOtherUVOperator,
-    RemoveMatOperator
+    RemoveMatOperator,
+    RemoveConstraintsOperator,
+    RemoveZeroGroupOperator
 ]
 
 

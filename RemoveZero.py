@@ -2,27 +2,33 @@
 
 import bpy
 
-def survey(obj):
-    maxWeight = {}
-    for i in obj.vertex_groups:
-        maxWeight[i.index] = 0
 
-    for v in obj.data.vertices:
-        for g in v.groups:
-            gn = g.group
-            w = obj.vertex_groups[g.group].weight(v.index)
-            if (maxWeight.get(gn) is None or w>maxWeight[gn]):
-                maxWeight[gn] = w
-    return maxWeight
+class RemoveZeroGroupOperator(bpy.types.Operator):
+    bl_idname = 'opr.object_remove_zero_group_operator'
+    bl_label = 'Object RemoveZeroGroup'
 
-obj = bpy.context.active_object
-maxWeight = survey(obj)
-# fix bug pointed out by user2859
-ka = []
-ka.extend(maxWeight.keys())
-ka.sort(key=lambda gn: -gn)
-print (ka)
-for gn in ka:
-    if maxWeight[gn]<=0:
-        print ("delete %d"%gn)
-        obj.vertex_groups.remove(obj.vertex_groups[gn]) # actually remove the group
+    def execute(self, context):
+        obj = bpy.context.active_object
+        maxWeight = self.survey(obj)
+        # fix bug pointed out by user2859
+        ka = []
+        ka.extend(maxWeight.keys())
+        ka.sort(key=lambda gn: -gn)
+        print(ka)
+        for gn in ka:
+            if maxWeight[gn] <= 0:
+                print("delete %d" % gn)
+                obj.vertex_groups.remove(obj.vertex_groups[gn])  # actually remove the group
+
+    def survey(self, obj):
+        maxWeight = {}
+        for i in obj.vertex_groups:
+            maxWeight[i.index] = 0
+
+        for v in obj.data.vertices:
+            for g in v.groups:
+                gn = g.group
+                w = obj.vertex_groups[g.group].weight(v.index)
+                if (maxWeight.get(gn) is None or w > maxWeight[gn]):
+                    maxWeight[gn] = w
+        return maxWeight
