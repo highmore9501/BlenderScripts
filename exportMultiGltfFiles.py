@@ -19,7 +19,7 @@
 
 # Based on: https://blender.stackexchange.com/a/31852/
 
-# 此py文件是用来安排插件的，不是直接运行的
+# 此py文件是用来安装插件的，不是直接运行的
 # 按3.3.2以后的新文档修正了里面的参数
 
 bl_info = {

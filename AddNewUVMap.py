@@ -15,3 +15,5 @@ class AddNewUVOperator(bpy.types.Operator):
             if obj.type == 'MESH' and newUVmap not in obj.data.uv_layers:
                 obj.data.uv_layers.new(name=newUVmap)
             obj.data.uv_layers[newUVmap].active = True
+
+        return {'FINISHED'}

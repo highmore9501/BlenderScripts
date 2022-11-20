@@ -1,13 +1,17 @@
 import bpy
 
-from .GroupByMaterials import SortByMatOperator
-from .AddNewUVMap import AddNewUVOperator
+from .GroupByMaterials import SortByMatOperator  # 按材质分类
+from .RemoveMat import RemoveMatOperator  # 删除所有材质
+from .AddNewUVMap import AddNewUVOperator  # 一键新增UV
+from .RemoveBakeUV import RemoveUVOperator  # 一键删除UV
+from .RemoveUnBakeUV import RemoveOtherUVOperator  # 一键删除其它UV
 
 bl_info = {
     # required
-    'name': 'Hippo Assistant',
+    'name': 'Hippo Tools',
     'blender': (2, 93, 0),
     'category': 'Object',
+    'location': 'View 3D > Tool Shelf > HippoTools',
     # optional
     'version': (1, 0, 0),
     'author': 'HaiKouBigHippo',
@@ -15,8 +19,9 @@ bl_info = {
 }
 
 PROPS = [
-    ('NewUVMap', bpy.props.StringProperty(name='Prefix', default='Bake')),
-    ('suffix', bpy.props.StringProperty(name='Suffix', default='Suff')),
+    ('NewUVMap', bpy.props.StringProperty(name='新UV命名', default='Bake')),
+    ('RemoveUVMap', bpy.props.StringProperty(name='删除UV', default='Bake')),
+    ('RestUVMap', bpy.props.StringProperty(name='保留UV', default='Bake')),
     ('add_version', bpy.props.BoolProperty(name='Add Version', default=False)),
     ('version', bpy.props.IntProperty(name='Version', default=1)),
 ]
@@ -27,24 +32,46 @@ class HippoToolPanel(bpy.types.Panel):
     bl_label = 'Hippo Tool Panel'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
+    bl_category = 'HippoTools'
 
     def draw(self, context):
-        self.layout.label(text='按材质分类')
+        self.layout.label(text='按材质分类', icon='NODE_MATERIAL')
         col = self.layout.column()
         col.operator(SortByMatOperator.bl_idname, text='一键分类')
 
-        self.layout.label(text='新增UV')
+        self.layout.label(text='清空材质', icon='SHADING_SOLID')
+        col = self.layout.column()
+        col.operator(RemoveMatOperator.bl_idname, text='清空所有材质')
+
+        self.layout.label(text='新增UV', icon='FILE_NEW')
         col = self.layout.column()
         row = col.row()
         row.prop(context.scene, 'NewUVMap')
         row = col.row()
         row.operator(AddNewUVOperator.bl_idname, text='一键新增UV')
 
+        self.layout.label(text='删除UV', icon='REMOVE')
+        col = self.layout.column()
+        row = col.row()
+        row.prop(context.scene, 'RemoveUVMap')
+        row = col.row()
+        row.operator(RemoveUVOperator.bl_idname, text='一键删除UV')
+
+        self.layout.label(text='删除其它UV', icon='PINNED')
+        col = self.layout.column()
+        row = col.row()
+        row.prop(context.scene, 'RestUVMap')
+        row = col.row()
+        row.operator(RemoveOtherUVOperator.bl_idname, text='一键删除其它UV')
+
 
 CLASSES = [
     HippoToolPanel,
     SortByMatOperator,
-    AddNewUVOperator
+    AddNewUVOperator,
+    RemoveUVOperator,
+    RemoveOtherUVOperator,
+    RemoveMatOperator
 ]
 
 
