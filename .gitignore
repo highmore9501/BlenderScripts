@@ -1,0 +1,9 @@
+__pycache__/__init__.cpython-310.pyc
+__pycache__/AddNewUVMap.cpython-310.pyc
+__pycache__/GroupByMaterials.cpython-310.pyc
+__pycache__/MakeTGTlayer.cpython-310.pyc
+__pycache__/RemoveBakeUV.cpython-310.pyc
+__pycache__/RemoveConstraints.cpython-310.pyc
+__pycache__/RemoveMat.cpython-310.pyc
+__pycache__/RemoveUnBakeUV.cpython-310.pyc
+__pycache__/RemoveZero.cpython-310.pyc
