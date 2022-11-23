@@ -10,20 +10,22 @@ class ParticleToAnimationOperator(bpy.types.Operator):
     KEYFRAME_ROTATION = True
     KEYFRAME_SCALE = True
     KEYFRAME_VISIBILITY = True  # Viewport and render visibility.
+    KEYFRAME_VISIBILITY_SCALE = True
 
-    def create_objects_for_particles(self, context, obj, ps):
+    def create_objects_for_particles(self, context, ps, obj):
         # Duplicate the given object for every particle and return the duplicates.
         # Use instances instead of full copies.
         obj_list = []
-
         mesh = obj.data
+        particles_coll = bpy.data.collections.new(name="NewParticles")
+        context.scene.collection.children.link(particles_coll)
+
         for i, _ in enumerate(ps.particles):
             dupli = bpy.data.objects.new(
                 name="particle.{:03d}".format(i),
                 object_data=mesh)
-            context.scene.objects.link(dupli)
+            particles_coll.objects.link(dupli)
             obj_list.append(dupli)
-
         return obj_list
 
     def match_and_keyframe_objects(self, context, ps, obj_list):
@@ -33,6 +35,7 @@ class ParticleToAnimationOperator(bpy.types.Operator):
         end_frame = context.scene.frame_end
 
         for frame in range(start_frame, end_frame + 1):
+            print("frame {} processed".format(frame))
             context.scene.frame_set(frame)
             for p, obj in zip(ps.particles, obj_list):
                 self.match_object_to_particle(p, obj)
@@ -52,9 +55,13 @@ class ParticleToAnimationOperator(bpy.types.Operator):
         # Set rotation mode to quaternion to match particle rotation.
         obj.rotation_mode = 'QUATERNION'
         obj.rotation_quaternion = rot
-        obj.scale = (size, size, size)
-        obj.hide = not (vis)
-        obj.hide_render = not (vis)
+        if self.KEYFRAME_VISIBILITY_SCALE:
+            if vis:
+                obj.scale = (size, size, size)
+            if not vis:
+                obj.scale = (0.001, 0.001, 0.001)
+        obj.hide_viewport = not vis  # <<<-- this was called "hide" in <= 2.79
+        obj.hide_render = not vis
 
     def keyframe_obj(self, obj):
         # Keyframe location, rotation, scale and visibility if specified.
@@ -65,18 +72,22 @@ class ParticleToAnimationOperator(bpy.types.Operator):
         if self.KEYFRAME_SCALE:
             obj.keyframe_insert("scale")
         if self.KEYFRAME_VISIBILITY:
-            obj.keyframe_insert("hide")
+            obj.keyframe_insert("hide_viewport")  # <<<-- this was called "hide" in <= 2.79
             obj.keyframe_insert("hide_render")
 
     def execute(self, context):
+
+        # in 2.8 you need to evaluate the Dependency graph in order to get data from animation, modifiers, etc
+        depsgraph = context.evaluated_depsgraph_get()
+
         # Assume only 2 objects are selected.
         # The active object should be the one with the particle system.
-
+        ps_obj_evaluated = depsgraph.objects[context.scene.ps_obj]
         obj = context.scene.objects[context.scene.Obj]
-        ps_obj = context.scene.objects[context.scene.ps_obj]
-        ps = ps_obj.particle_systems[0]  # Assume only 1 particle system is present.
 
-        obj_list = self.create_objects_for_particles(context, obj, ps)
-        self.match_and_keyframe_objects(context, ps, obj_list)
+        for psy in ps_obj_evaluated.particle_systems:
+            ps = psy  # Assume only 1 particle system is present.
+            obj_list = self.create_objects_for_particles(context, ps,obj)
+            self.match_and_keyframe_objects(context, ps, obj_list)
 
         return {'FINISHED'}
