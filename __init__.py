@@ -7,6 +7,7 @@ from .RemoveBakeUV import RemoveUVOperator  # 一键删除UV
 from .RemoveUnBakeUV import RemoveOtherUVOperator  # 一键删除其它UV
 from .RemoveConstraints import RemoveConstraintsOperator  # 一键清除所有约束
 from .RemoveZero import RemoveZeroGroupOperator
+from .ParticleToAnimationRebuild import ParticleToAnimationOperator
 
 bl_info = {
     # required
@@ -24,6 +25,8 @@ PROPS = [
     ('NewUVMap', bpy.props.StringProperty(name='新UV命名', default='Bake')),
     ('RemoveUVMap', bpy.props.StringProperty(name='删除UV', default='Bake')),
     ('RestUVMap', bpy.props.StringProperty(name='保留UV', default='Bake')),
+    ('ps_obj', bpy.props.StringProperty(name='粒子生成体')),
+    ('Obj', bpy.props.StringProperty(name='啥啥体')),
     ('add_version', bpy.props.BoolProperty(name='Add Version', default=False)),
     ('version', bpy.props.IntProperty(name='Version', default=1)),
 ]
@@ -86,6 +89,15 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(RemoveOtherUVOperator.bl_idname, text='一键删除其它UV', icon='PINNED')
 
+        layout.label(text='粒子动画')
+        col = layout.column()
+        row = col.row()
+        row.prop_search(context.scene, "ps_obj", bpy.data, "objects", icon='OBJECT_DATA')
+        row = col.row()
+        row.prop_search(context.scene, "Obj", bpy.data, "objects",  icon='OBJECT_DATA')
+        row = col.row()
+        row.operator(ParticleToAnimationOperator.bl_idname, text='生成粒子动画', icon='RENDER_ANIMATION')
+
 
 CLASSES = [
     HippoToolPanel,
@@ -95,7 +107,8 @@ CLASSES = [
     RemoveOtherUVOperator,
     RemoveMatOperator,
     RemoveConstraintsOperator,
-    RemoveZeroGroupOperator
+    RemoveZeroGroupOperator,
+    ParticleToAnimationOperator
 ]
 
 

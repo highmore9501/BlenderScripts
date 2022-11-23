@@ -1,8 +1,8 @@
 import bpy
 
 
-class ParticleToAniamtionOperator(bpy.types.Operator):
-    bl_idname = 'opr.object_particle_to_aniamtion_operator'
+class ParticleToAnimationOperator(bpy.types.Operator):
+    bl_idname = 'opr.object_particle_to_animation_operator'
     bl_label = 'Object ParticleToAnimation'
 
     # Set these to False if you don't want to key that property.
@@ -11,30 +11,29 @@ class ParticleToAniamtionOperator(bpy.types.Operator):
     KEYFRAME_SCALE = True
     KEYFRAME_VISIBILITY = True  # Viewport and render visibility.
 
-    def create_objects_for_particles(self, context):
+    def create_objects_for_particles(self, context, obj, ps):
         # Duplicate the given object for every particle and return the duplicates.
         # Use instances instead of full copies.
         obj_list = []
-        obj = context.scene.Obj
-        ps = context.scene.ps
 
         mesh = obj.data
         for i, _ in enumerate(ps.particles):
             dupli = bpy.data.objects.new(
                 name="particle.{:03d}".format(i),
                 object_data=mesh)
-            bpy.context.scene.objects.link(dupli)
+            context.scene.objects.link(dupli)
             obj_list.append(dupli)
 
         return obj_list
 
-    def match_and_keyframe_objects(self, context, obj_list, start_frame, end_frame):
+    def match_and_keyframe_objects(self, context, ps, obj_list):
         # Match and keyframe the objects to the particles for every frame in the
         # given range.
-        ps = context.scene.ps
+        start_frame = context.scene.frame_start
+        end_frame = context.scene.frame_end
 
         for frame in range(start_frame, end_frame + 1):
-            bpy.context.scene.frame_set(frame)
+            context.scene.frame_set(frame)
             for p, obj in zip(ps.particles, obj_list):
                 self.match_object_to_particle(p, obj)
                 self.keyframe_obj(obj)
@@ -72,12 +71,12 @@ class ParticleToAniamtionOperator(bpy.types.Operator):
     def execute(self, context):
         # Assume only 2 objects are selected.
         # The active object should be the one with the particle system.
-        ps_obj = bpy.context.object
-        obj = [obj for obj in bpy.context.selected_objects if obj != ps_obj][0]
+
+        obj = context.scene.objects[context.scene.Obj]
+        ps_obj = context.scene.objects[context.scene.ps_obj]
         ps = ps_obj.particle_systems[0]  # Assume only 1 particle system is present.
-        start_frame = bpy.context.scene.frame_start
-        end_frame = bpy.context.scene.frame_end
-        obj_list = self.create_objects_for_particles(ps, obj)
-        self.match_and_keyframe_objects(ps, obj_list, start_frame, end_frame)
+
+        obj_list = self.create_objects_for_particles(context, obj, ps)
+        self.match_and_keyframe_objects(context, ps, obj_list)
 
         return {'FINISHED'}
