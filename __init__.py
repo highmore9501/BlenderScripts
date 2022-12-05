@@ -8,6 +8,7 @@ from .RemoveUnBakeUV import RemoveOtherUVOperator  # 一键删除其它UV
 from .RemoveConstraints import RemoveConstraintsOperator  # 一键清除所有约束
 from .RemoveZero import RemoveZeroGroupOperator
 from .ParticleToAnimationRebuild import ParticleToAnimationOperator
+from .ChangeMaterial import ChangerMatOperator
 
 bl_info = {
     # required
@@ -26,9 +27,29 @@ PROPS = [
     ('RemoveUVMap', bpy.props.StringProperty(name='删除UV', default='Bake')),
     ('RestUVMap', bpy.props.StringProperty(name='保留UV', default='Bake')),
     ('ps_obj', bpy.props.StringProperty(name='粒子生成体')),
-    ('Obj', bpy.props.StringProperty(name='啥啥体')),
+    ('Obj', bpy.props.StringProperty(name='派生源')),
     ('add_version', bpy.props.BoolProperty(name='Add Version', default=False)),
     ('version', bpy.props.IntProperty(name='Version', default=1)),
+    ('ChangeColor', bpy.props.BoolProperty(name='颜色', default=False)),
+    ('BaseColor', bpy.props.FloatVectorProperty(
+        name = "",
+        subtype = "COLOR",
+        default = (1.0,1.0,1.0,1.0),
+        size = 4
+        )),
+    ('ChangeRoughness', bpy.props.BoolProperty(name='糙度', default=False)),
+    ('Roughness', bpy.props.FloatProperty(name='', default=0.0)),
+    ('ChangeMetalness', bpy.props.BoolProperty(name='金属度', default=False)),
+    ('Metalness', bpy.props.FloatProperty(name='', default=0.0)),
+    ('ChangeEmitColor', bpy.props.BoolProperty(name='自发光色', default=False)),
+    ('EmitColor', bpy.props.FloatVectorProperty(
+        name = "",
+        subtype = "COLOR",
+        default = (1.0,1.0,1.0,1.0),
+        size = 4
+        )),
+    ('ChangeEmitStrength', bpy.props.BoolProperty(name='自发光强度', default=False)),
+    ('EmitStrength', bpy.props.FloatProperty(name='', default=0.0)),
 ]
 
 
@@ -98,6 +119,26 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(ParticleToAnimationOperator.bl_idname, text='生成粒子动画', icon='RENDER_ANIMATION')
 
+        layout.label(text='修改材质')
+        col = layout.column()
+        row = col.row()
+        row.prop(context.scene,"ChangeColor")
+        row.prop(context.scene,"BaseColor")
+        row = col.row()
+        row.prop(context.scene,"ChangeRoughness")
+        row.prop(context.scene,"Roughness")
+        row = col.row()
+        row.prop(context.scene,"ChangeMetalness")
+        row.prop(context.scene,"Metalness")
+        row = col.row()
+        row.prop(context.scene,"ChangeEmitColor")
+        row.prop(context.scene,"EmitColor")
+        row = col.row()
+        row.prop(context.scene,"ChangeEmitStrength")
+        row.prop(context.scene,"EmitStrength")
+        row = col.row()
+        row.operator(ChangerMatOperator.bl_idname,text='批量修改材质属性',icon='NODE_MATERIAL')
+
 
 CLASSES = [
     HippoToolPanel,
@@ -108,7 +149,8 @@ CLASSES = [
     RemoveMatOperator,
     RemoveConstraintsOperator,
     RemoveZeroGroupOperator,
-    ParticleToAnimationOperator
+    ParticleToAnimationOperator,
+    ChangerMatOperator
 ]
 
 
