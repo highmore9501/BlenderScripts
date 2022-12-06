@@ -6,9 +6,10 @@ from .AddNewUVMap import AddNewUVOperator  # 一键新增UV
 from .RemoveBakeUV import RemoveUVOperator  # 一键删除UV
 from .RemoveUnBakeUV import RemoveOtherUVOperator  # 一键删除其它UV
 from .RemoveConstraints import RemoveConstraintsOperator  # 一键清除所有约束
-from .RemoveZero import RemoveZeroGroupOperator
-from .ParticleToAnimationRebuild import ParticleToAnimationOperator
-from .ChangeMaterial import ChangerMatOperator
+from .RemoveZero import RemoveZeroGroupOperator  # 删除空顶点组
+from .ParticleToAnimationRebuild import ParticleToAnimationOperator  #  粒子动画
+from .ChangeMaterial import ChangerMatOperator   #  修改材质属性
+from .PivotToLowest import PivotToLowestOperator  #  设置轴心到最低点
 
 bl_info = {
     # required
@@ -139,6 +140,12 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(ChangerMatOperator.bl_idname,text='批量修改材质属性',icon='NODE_MATERIAL')
 
+        layout.label(text='修改轴心')
+        col = layout.column()
+        row = col.row()
+        row.operator(PivotToLowestOperator.bl_idname,text='批量轴心到低点',icon='EMPTY_AXIS')
+
+
 
 CLASSES = [
     HippoToolPanel,
@@ -150,7 +157,8 @@ CLASSES = [
     RemoveConstraintsOperator,
     RemoveZeroGroupOperator,
     ParticleToAnimationOperator,
-    ChangerMatOperator
+    ChangerMatOperator,
+    PivotToLowestOperator
 ]
 
 
