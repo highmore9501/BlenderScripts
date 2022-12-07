@@ -7,18 +7,29 @@ class PivotToLowestOperator(bpy.types.Operator):
 
 
     def execute(self, context):   
+        orginLoaction = mathutils.Vector((0,0,0)) + bpy.context.scene.cursor.location
+        targetObjects = []
+
         for item in bpy.context.selected_objects:
             if item.type == "MESH":
-                bpy.context.view_layer.objects.active = item
-                bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
+                targetObjects.append(item)            
+            item.select_set(False)
+        
+        for item in targetObjects:            
+            item.select_set(True)
+            bpy.ops.object.origin_set(type='ORIGIN_GEOMETRY')
 
-                # get the minimum z-value of all vertices after converting to global transform
-                lowest_pt = min([(item.matrix_world @ v.co).z for v in item.data.vertices])              
-                
-                # give 3dcursor new coordinates
-                bpy.context.scene.cursor.location = mathutils.Vector((item.location.x,item.location.y,lowest_pt))
+            # get the minimum z-value of all vertices after converting to global transform
+            lowest_pt = min([(item.matrix_world @ v.co).z for v in item.data.vertices])              
+            
+            # give 3dcursor new coordinates
+            bpy.context.scene.cursor.location = mathutils.Vector((item.location.x,item.location.y,lowest_pt))
 
-                # set the origin on the current object to the 3dcursor location
-                bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+            # set the origin on the current object to the 3dcursor location
+            bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
+
+            item.select_set(False)
+        
+        bpy.context.scene.cursor.location = orginLoaction
     
         return {'FINISHED'}
