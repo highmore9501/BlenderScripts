@@ -10,6 +10,7 @@ from .RemoveZero import RemoveZeroGroupOperator  # 删除空顶点组
 from .ParticleToAnimationRebuild import ParticleToAnimationOperator  #  粒子动画
 from .ChangeMaterial import ChangerMatOperator   #  修改材质属性
 from .PivotToLowest import PivotToLowestOperator  #  设置轴心到最低点
+from .AddReferencePlane import AddReferencePlaneOperator  #  添加参考平面
 
 bl_info = {
     # required
@@ -145,6 +146,11 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(PivotToLowestOperator.bl_idname,text='批量轴心到低点',icon='EMPTY_AXIS')
 
+        layout.label(text='修改轴心')
+        col = layout.column()
+        row = col.row()
+        row.operator(AddReferencePlaneOperator.bl_idname,text='新增参考平面',icon='SNAP_FACE')
+
 
 
 CLASSES = [
@@ -158,7 +164,8 @@ CLASSES = [
     RemoveZeroGroupOperator,
     ParticleToAnimationOperator,
     ChangerMatOperator,
-    PivotToLowestOperator
+    PivotToLowestOperator,
+    AddReferencePlaneOperator
 ]
 
 
