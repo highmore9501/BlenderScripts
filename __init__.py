@@ -11,6 +11,7 @@ from .ParticleToAnimationRebuild import ParticleToAnimationOperator  #  粒子�
 from .ChangeMaterial import ChangerMatOperator   #  修改材质属性
 from .PivotToLowest import PivotToLowestOperator  #  设置轴心到最低点
 from .AddReferencePlane import AddReferencePlaneOperator  #  添加参考平面
+from .ShapenAll import ShapenAllOperator  #  锐化多个物体
 
 bl_info = {
     # required
@@ -20,7 +21,7 @@ bl_info = {
     'location': 'View 3D > Tool Shelf > HippoTools',
     # optional
     'version': (1, 0, 0),
-    'author': 'HaiKouBigHippo',
+    'author': '海口大河马 HaiKouBigHippo',
     'description': ' 个人常用的一些脚本集。',
 }
 
@@ -151,6 +152,11 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(AddReferencePlaneOperator.bl_idname,text='新增参考平面',icon='SNAP_FACE')
 
+        layout.label(text='锐化物体')
+        col = layout.column()
+        row = col.row()
+        row.operator(ShapenAllOperator.bl_idname,text='锐化多个物体',icon='SNAP_VOLUME')
+
 
 
 CLASSES = [
@@ -165,7 +171,8 @@ CLASSES = [
     ParticleToAnimationOperator,
     ChangerMatOperator,
     PivotToLowestOperator,
-    AddReferencePlaneOperator
+    AddReferencePlaneOperator,
+    ShapenAllOperator
 ]
 
 
