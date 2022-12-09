@@ -36,6 +36,7 @@ class AddReferencePlaneOperator(bpy.types.Operator):
             planeNormal = plane.data.polygons[0].normal  #  计算新平面与目标平面的法线角度，并且旋转新平面与原目标平面垂直
             rot = planeNormal.rotation_difference( currentNormal ).to_euler()
             plane.rotation_euler = rot
+            plane.name = '{}_P'.format(currentObj.name)
             plane.select_set(False)
 
         bpy.context.scene.cursor.location = orginLoaction  #  游标归位
