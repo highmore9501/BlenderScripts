@@ -7,11 +7,12 @@ from .RemoveBakeUV import RemoveUVOperator  # 一键删除UV
 from .RemoveUnBakeUV import RemoveOtherUVOperator  # 一键删除其它UV
 from .RemoveConstraints import RemoveConstraintsOperator  # 一键清除所有约束
 from .RemoveZero import RemoveZeroGroupOperator  # 删除空顶点组
-from .ParticleToAnimationRebuild import ParticleToAnimationOperator  #  粒子动画
-from .ChangeMaterial import ChangerMatOperator   #  修改材质属性
-from .PivotToLowest import PivotToLowestOperator  #  设置轴心到最低点
-from .AddReferencePlane import AddReferencePlaneOperator  #  添加参考平面
-from .ShapenAll import ShapenAllOperator  #  锐化多个物体
+from .ParticleToAnimationRebuild import ParticleToAnimationOperator  # 粒子动画
+from .ChangeMaterial import ChangerMatOperator   # 修改材质属性
+from .PivotToLowest import PivotToLowestOperator  # 设置轴心到最低点
+from .AddReferencePlane import AddReferencePlaneOperator  # 添加参考平面
+from .ShapenAll import ShapenAllOperator  # 锐化多个物体
+from .changeGlassBlendMode import ChangerGlassBlendeModeOperator  # 修改玻璃混合模式
 
 bl_info = {
     # required
@@ -88,9 +89,12 @@ class HippoToolPanel(bpy.types.Panel):
         col = row.column()
         col.operator(RemoveMatOperator.bl_idname, text='材质', icon='SHADING_SOLID')
 
-        layout.label(text='按材质分类')
+        layout.label(text='材质处理')
         col = layout.column()
-        col.operator(SortByMatOperator.bl_idname, text='一键分类', icon='NODE_MATERIAL')
+        col.operator(SortByMatOperator.bl_idname, text='材质分类', icon='SHADING_SOLID')
+
+        col = layout.column()
+        col.operator(ChangerGlassBlendeModeOperator.bl_idname, text='玻璃处理', icon='SHADING_RENDERED')
 
         layout.label(text='新增UV')
         col = layout.column()
@@ -172,7 +176,8 @@ CLASSES = [
     ChangerMatOperator,
     PivotToLowestOperator,
     AddReferencePlaneOperator,
-    ShapenAllOperator
+    ShapenAllOperator,
+    ChangerGlassBlendeModeOperator
 ]
 
 
