@@ -90,10 +90,11 @@ class HippoToolPanel(bpy.types.Panel):
         col.operator(RemoveMatOperator.bl_idname, text='材质', icon='SHADING_SOLID')
 
         layout.label(text='材质处理')
-        col = layout.column()
+        row = layout.row()
+        col = row.column()
         col.operator(SortByMatOperator.bl_idname, text='材质分类', icon='SHADING_SOLID')
 
-        col = layout.column()
+        col = row.column()
         col.operator(ChangerGlassBlendeModeOperator.bl_idname, text='玻璃处理', icon='SHADING_RENDERED')
 
         layout.label(text='新增UV')
