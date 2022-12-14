@@ -13,6 +13,7 @@ from .PivotToLowest import PivotToLowestOperator  # 设置轴心到最低点
 from .AddReferencePlane import AddReferencePlaneOperator  # 添加参考平面
 from .ShapenAll import ShapenAllOperator  # 锐化多个物体
 from .changeGlassBlendMode import ChangerGlassBlendeModeOperator  # 修改玻璃混合模式
+from .RemoveUnusedMat import RemoveUnusedMatOperator  # 删除物体中无用的材料
 
 bl_info = {
     # required
@@ -97,6 +98,9 @@ class HippoToolPanel(bpy.types.Panel):
         col = row.column()
         col.operator(ChangerGlassBlendeModeOperator.bl_idname, text='玻璃处理', icon='SHADING_RENDERED')
 
+        col = row.column()
+        col.operator(RemoveUnusedMatOperator.bl_idname, text='删除废材', icon='GROUP_VERTEX')
+
         layout.label(text='新增UV')
         col = layout.column()
         row = col.row()
@@ -178,7 +182,8 @@ CLASSES = [
     PivotToLowestOperator,
     AddReferencePlaneOperator,
     ShapenAllOperator,
-    ChangerGlassBlendeModeOperator
+    ChangerGlassBlendeModeOperator,
+    RemoveUnusedMatOperator
 ]
 
 
