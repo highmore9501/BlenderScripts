@@ -6,17 +6,15 @@ class RemoveUnusedMatOperator(bpy.types.Operator):  # 移除所选物体中无�
     bl_label = 'Object RemoveUnusedMat'
 
     def execute(self, context):
-        for obj in [o for o in context.selected_objects if o.type=='MESH']:
-            mat_list = set(ms.material for ms in obj.material_slots)
-            used_mats = set(obj.material_slots[f.material_index].material
-                             for f in obj.data.polygons)
+        for obj in [o for o in bpy.context.selected_objects if o.type=='MESH']:
+            used_mats = set(obj.material_slots[f.material_index].material.name
+                        for f in obj.data.polygons)
+        
+            print(used_mats)
 
-            unused_mats = mat_list - used_mats
-
-            print(obj.name, unused_mats)
-
-            for ms in obj.material_slots:
-                if ms.material in unused_mats:
-                    ms.material = None
+            for i in reversed(range(len(obj.material_slots))):
+                obj.active_material_index = i
+                if obj.material_slots[i].name not in used_mats:
+                    bpy.ops.object.material_slot_remove()
 
         return {'FINISHED'}
