@@ -13,8 +13,12 @@ class RenameByHerfOperator(bpy.types.Operator):
             try:    # https://api.xvr.art/api/v1/space/assets/getter?sid=91&position=18&type=image
                 if item.hubs_component_image.src != 'https://mozilla.org':
                     src = item.hubs_component_image.src
-                else:   
+                elif item.hubs_component_link.href != 'https://mozilla.org':   
                     src = item.hubs_component_link.href
+                elif item.hubs_component_video.src != 'https://mozilla.org':
+                    src = item.hubs_component_video.src
+                else:
+                    src = item.hubs_component_audio.src
                 position = re.findall(r"position=(.+?)&type",src)[0] or src.split("position=")[1]                
                 item.name = "Position_{}".format(position)
             except:
