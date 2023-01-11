@@ -10,10 +10,10 @@ class RenameByHerfOperator(bpy.types.Operator):
 
     def execute(self, context):
         for item in bpy.context.selected_objects:
-            try:
-                position = item.hubs_component_image.src.split("position=")[1] or -1
-                if int(position)>0:
-                    item.name = "Position_{}".format(position)
+            try:    # https://api.xvr.art/api/v1/space/assets/getter?sid=91&position=18&type=image
+                src = item.hubs_component_image.src
+                position = re.findall(r"position=(.+?)&type",src)[0] or src.split("position=")[1]                
+                item.name = "Position_{}".format(position)
             except:
                 pass
 
