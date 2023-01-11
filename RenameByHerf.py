@@ -11,7 +11,10 @@ class RenameByHerfOperator(bpy.types.Operator):
     def execute(self, context):
         for item in bpy.context.selected_objects:
             try:    # https://api.xvr.art/api/v1/space/assets/getter?sid=91&position=18&type=image
-                src = item.hubs_component_image.src
+                if item.hubs_component_image.src != 'https://mozilla.org':
+                    src = item.hubs_component_image.src
+                else:   
+                    src = item.hubs_component_link.href
                 position = re.findall(r"position=(.+?)&type",src)[0] or src.split("position=")[1]                
                 item.name = "Position_{}".format(position)
             except:
