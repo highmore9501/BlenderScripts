@@ -21,17 +21,26 @@ class SortByMatOperator(bpy.types.Operator):
         for item in bpy.context.selected_objects:
             if item.type == "MESH":
                 if len(item.data.materials) == 1:  # 有且只有一种材料
-                    materialName = str(item.material_slots[0].material.name)  # 拿到材料名
-                    colCounter = 0  # 笨办法，用这个值来计算有多少同名的Collections
-                    for col in bpy.data.collections:
+                    materialName = str(item.material_slots[0].material.name)  # 拿到材料名   
+                    tagertCol = bpy.context.scene.collection
+                    rootCol = bpy.context.scene.collection                 
+                    for col in bpy.data.collections:                        
                         if col.name == materialName:
-                            colCounter += 1
+                            tagertCol = col                  
+                        if col.name == "Root":
+                            rootCol = col 
 
-                    if colCounter == 1:
-                        self.move2Collection(item, bpy.data.collections[materialName])
-                    else:  # 材料名不在所有的Collection组里 ，新建组，然后移动物体过去
+                    if tagertCol is not bpy.context.scene.collection:
+                        self.move2Collection(item, tagertCol)
+                    elif rootCol is not bpy.context.scene.collection:  # 材料名不在所有的Collection组里 ，新建组，然后移动物体过去                        
                         newCollection = bpy.data.collections.new(name=materialName)
-                        bpy.context.scene.collection.children.link(newCollection)
+                        rootCol.children.link(newCollection)                        
+                        self.move2Collection(item, newCollection)
+                    else:
+                        newrootCol = bpy.data.collections.new(name="Root")
+                        newCollection = bpy.data.collections.new(name=materialName)
+                        bpy.context.scene.collection.children.link(newrootCol)
+                        newrootCol.children.link(newCollection)
                         self.move2Collection(item, newCollection)
 
         return {'FINISHED'}
