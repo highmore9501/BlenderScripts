@@ -14,6 +14,7 @@ from .AddReferencePlane import AddReferencePlaneOperator  # 添加参考平面
 from .ShapenAll import ShapenAllOperator  # 锐化多个物体
 from .changeGlassBlendMode import ChangerGlassBlendeModeOperator  # 修改玻璃混合模式
 from .RemoveUnusedMat import RemoveUnusedMatOperator  # 删除物体中无用的材料
+from .RenameByHerf import RenameByHerfOperator # 根据图片插件里herf位置来重新命名物体
 
 bl_info = {
     # required
@@ -166,6 +167,11 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(ShapenAllOperator.bl_idname,text='锐化多个物体',icon='SNAP_VOLUME')
 
+        layout.label(text='依图片源重命名')
+        col = layout.column()
+        row = col.row()
+        row.operator(RenameByHerfOperator.bl_idname,text='依图片源重命名',icon='IMAGE_PLANE')
+
 
 
 CLASSES = [
@@ -183,7 +189,8 @@ CLASSES = [
     AddReferencePlaneOperator,
     ShapenAllOperator,
     ChangerGlassBlendeModeOperator,
-    RemoveUnusedMatOperator
+    RemoveUnusedMatOperator,
+    RenameByHerfOperator
 ]
 
 

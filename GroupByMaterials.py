@@ -30,9 +30,9 @@ class SortByMatOperator(bpy.types.Operator):
                         if col.name == "Root":
                             rootCol = col 
 
-                    if tagertCol is not bpy.context.scene.collection:
+                    if tagertCol is not bpy.context.scene.collection:  # Collection已经存在，直接移过去
                         self.move2Collection(item, tagertCol)
-                    elif rootCol is not bpy.context.scene.collection:  # 材料名不在所有的Collection组里 ，新建组，然后移动物体过去                        
+                    elif rootCol is not bpy.context.scene.collection:  # 材料名不在所有的Collection组里 ，但是root存在，新建组放在root下，然后移动物体过去                        
                         newCollection = bpy.data.collections.new(name=materialName)
                         rootCol.children.link(newCollection)                        
                         self.move2Collection(item, newCollection)
