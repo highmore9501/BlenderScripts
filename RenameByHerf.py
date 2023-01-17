@@ -17,8 +17,11 @@ class RenameByHerfOperator(bpy.types.Operator):
                     src = item.hubs_component_link.href
                 elif item.hubs_component_video.src != 'https://mozilla.org':
                     src = item.hubs_component_video.src
+                elif item.hubs_component_model.src != 'https://mozilla.org':
+                    src = item.hubs_component_model.src
                 else:
                     src = item.hubs_component_audio.src
+                    
                 position = re.findall(r"position=(.+?)&type",src)[0] or src.split("position=")[1]                
                 item.name = "Position_{}".format(position)
             except:
