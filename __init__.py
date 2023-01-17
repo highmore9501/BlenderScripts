@@ -15,6 +15,7 @@ from .ShapenAll import ShapenAllOperator  # 锐化多个物体
 from .changeGlassBlendMode import ChangerGlassBlendeModeOperator  # 修改玻璃混合模式
 from .RemoveUnusedMat import RemoveUnusedMatOperator  # 删除物体中无用的材料
 from .RenameByHerf import RenameByHerfOperator # 根据图片插件里herf位置来重新命名物体
+from .DistributeObToTargets import DistributeObToTargetsOperator # 在指定位置批量生成指定目标的复制体
 
 bl_info = {
     # required
@@ -56,6 +57,8 @@ PROPS = [
         )),
     ('ChangeEmitStrength', bpy.props.BoolProperty(name='自发光强度', default=False)),
     ('EmitStrength', bpy.props.FloatProperty(name='', default=0.0)),
+    ('sourceObj', bpy.props.StringProperty(name='复制目标')),
+    ('OriginScale', bpy.props.FloatProperty(name='原始缩放值',default=1.0)),
 ]
 
 
@@ -172,6 +175,15 @@ class HippoToolPanel(bpy.types.Panel):
         row = col.row()
         row.operator(RenameByHerfOperator.bl_idname,text='依图片源重命名',icon='IMAGE_PLANE')
 
+        layout.label(text='批量复制代理Pivot')
+        col = layout.column()
+        row = col.row()
+        row.prop_search(context.scene, "sourceObj", bpy.data, "objects", icon='OBJECT_DATA')
+        row = col.row() 
+        row.prop(context.scene,"OriginScale")
+        row = col.row() 
+        row.operator(DistributeObToTargetsOperator.bl_idname,text="批量生成Pivot",icon="PIVOT_CURSOR")
+
 
 
 CLASSES = [
@@ -190,7 +202,8 @@ CLASSES = [
     ShapenAllOperator,
     ChangerGlassBlendeModeOperator,
     RemoveUnusedMatOperator,
-    RenameByHerfOperator
+    RenameByHerfOperator,
+    DistributeObToTargetsOperator
 ]
 
 
