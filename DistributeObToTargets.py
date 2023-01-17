@@ -27,7 +27,7 @@ class DistributeObToTargetsOperator(bpy.types.Operator):
                 for i in range(3):
                     NewObj.location[i] = item.location[i]
                     NewObj.rotation_euler[i] = item.rotation_euler[i]
-                    NewObj.scale[i] = NewObj.scale[i] * item.scale[i] / originScale
+                    NewObj.scale[i] = 10000 * NewObj.scale[i] * item.scale[i] / originScale
             
                 targetCol.objects.link(NewObj)  
 
