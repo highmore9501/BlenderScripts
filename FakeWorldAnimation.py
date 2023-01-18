@@ -8,6 +8,7 @@ import bpy
 
 import mathutils
 
+bl_info = "移动世界以造成自身在前进的假象"
 frames = 1600  # 设置总帧数
 currentFrame = 1
 

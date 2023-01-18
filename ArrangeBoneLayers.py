@@ -1,6 +1,6 @@
-# 把所有带deform的骨骼移动到第29层，即Rigify默认的DEF层，运行时需要在PoseMode下
-
 import bpy
+
+bl_info ="把所有带deform的骨骼移动到第29层，即Rigify默认的DEF层，运行时需要在PoseMode下"
 
 deformLayerNo = 29
 mchLayerNo = 28
