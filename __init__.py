@@ -7,6 +7,23 @@ from .panels.changeMatPanel import ChangeMatPanel
 from .panels.particleAnimatePanel import ParticleAnimatePanel
 from .panels.othersFunctionPanel import OthersFunctionPanel
 
+from .operators.AddNewUVMap import AddNewUVOperator
+from .operators.AddReferencePlane import AddReferencePlaneOperator
+from .operators.changeGlassBlendMode import ChangerGlassBlendeModeOperator
+from .operators.ChangeMaterial import ChangerMatOperator
+from .operators.DistributeObToTargets import DistributeObToTargetsOperator
+from .operators.GroupByMaterials import SortByMatOperator
+from .operators.ParticleToAnimationRebuild import ParticleToAnimationOperator
+from .operators.PivotToLowest import PivotToLowestOperator
+from .operators.RemoveBakeUV import RemoveUVOperator
+from .operators.RemoveConstraints import RemoveConstraintsOperator
+from .operators.RemoveMat import RemoveMatOperator
+from .operators.RemoveUnBakeUV import RemoveOtherUVOperator
+from .operators.RemoveUnusedMat import RemoveUnusedMatOperator
+from .operators.RemoveZero import RemoveZeroGroupOperator
+from .operators.RenameByHerf import RenameByHerfOperator
+from .operators.ShapenAll import ShapenAllOperator
+
 bl_info = {
     # required
     'name': 'Hippo Tools',
@@ -55,7 +72,23 @@ CLASSES = [
     UVDataPanel,    
     ParticleAnimatePanel,
     ChangeMatPanel,
-    OthersFunctionPanel
+    OthersFunctionPanel,
+    AddNewUVOperator,
+    AddReferencePlaneOperator,
+    ChangerGlassBlendeModeOperator,
+    ChangerMatOperator,
+    DistributeObToTargetsOperator,
+    SortByMatOperator,
+    ParticleToAnimationOperator,
+    PivotToLowestOperator,
+    RemoveUVOperator,
+    RemoveConstraintsOperator,
+    RemoveMatOperator,
+    RemoveOtherUVOperator,
+    RemoveUnusedMatOperator,
+    RemoveZeroGroupOperator,
+    RenameByHerfOperator,
+    ShapenAllOperator
 ]
 
 
