@@ -64,6 +64,8 @@ PROPS = [
         )),
     ('ChangeEmitStrength', bpy.props.BoolProperty(name='自发光强度', default=False)),
     ('EmitStrength', bpy.props.FloatProperty(name='', default=0.0)),
+    ('sourceObj', bpy.props.StringProperty(name="派生源")),        
+    ('OriginScale',bpy.props.FloatProperty(name="原始大小",default=1.0))
 ]
 
 CLASSES = [
