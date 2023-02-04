@@ -1,8 +1,7 @@
 import bpy
 
 from ..operators.GroupByMaterials import SortByMatOperator  # 按材质分类
-from ..operators.RemoveUnusedMat import RemoveUnusedMatOperator  # 删除物体中无用的材料
-from ..operators.changeGlassBlendMode import ChangerGlassBlendeModeOperator  # 修改玻璃混合模式
+from ..operators.changeGlassBlendMode import ChangeGlassBlendeModeOperator, DisableGlassBlendeModeOperator  # 修改玻璃混合模式
 
 class ClearMatPanel(bpy.types.Panel):
     bl_idname = 'VIEW3D_PT_MAT_DATA'
@@ -31,8 +30,7 @@ class ClearMatPanel(bpy.types.Panel):
         col.operator(SortByMatOperator.bl_idname, text='材质分类', icon='SHADING_SOLID')
 
         col = row.column()
-        col.operator(ChangerGlassBlendeModeOperator.bl_idname, text='玻璃处理', icon='SHADING_RENDERED')
+        col.operator(ChangeGlassBlendeModeOperator.bl_idname, text='玻璃处理', icon='SHADING_RENDERED')
 
         col = row.column()
-        col.operator(RemoveUnusedMatOperator.bl_idname, text='删除废材', icon='GROUP_VERTEX')
-        
+        col.operator(DisableGlassBlendeModeOperator.bl_idname, text='取消透明', icon='SHADING_SOLID')

@@ -9,7 +9,7 @@ from .panels.othersFunctionPanel import OthersFunctionPanel
 
 from .operators.AddNewUVMap import AddNewUVOperator
 from .operators.AddReferencePlane import AddReferencePlaneOperator
-from .operators.changeGlassBlendMode import ChangerGlassBlendeModeOperator
+from .operators.changeGlassBlendMode import ChangeGlassBlendeModeOperator, DisableGlassBlendeModeOperator
 from .operators.ChangeMaterial import ChangerMatOperator
 from .operators.DistributeObToTargets import DistributeObToTargetsOperator
 from .operators.GroupByMaterials import SortByMatOperator
@@ -71,13 +71,14 @@ PROPS = [
 CLASSES = [
     ClearDataPanel,
     ClearMatPanel,
-    UVDataPanel,    
+    UVDataPanel,
     ParticleAnimatePanel,
     ChangeMatPanel,
     OthersFunctionPanel,
     AddNewUVOperator,
     AddReferencePlaneOperator,
-    ChangerGlassBlendeModeOperator,
+    ChangeGlassBlendeModeOperator,
+    DisableGlassBlendeModeOperator,
     ChangerMatOperator,
     DistributeObToTargetsOperator,
     SortByMatOperator,
