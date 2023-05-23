@@ -29,15 +29,12 @@ class GetParticlesMatricesOperator(bpy.types.Operator,ExportHelper):
         
         matrices = []
 
-        for p in ps.particles:
-            # print(p.location, p.rotation, p.size)
-            # make a matrix for the particles
-            M = p.rotation.to_matrix().to_4x4()
-            M.translation = p.location
-            M[0][0] *= p.size
-            M[1][1] *= p.size
-            M[2][2] *= p.size
-            matrices.append(M)
+        for p in ps.particles:            
+            mat_loc = Matrix.Translation(p.location)           
+            mat_rot = p.rotation.to_matrix().to_4x4()            
+            mat_sca = Matrix.Scale(p.size, 4)            
+            mat = mat_loc @ mat_rot @ mat_sca            
+            matrices.append(mat)
         
         # 导出矩阵信息到file_path
         with open(file_path, 'w') as f:
