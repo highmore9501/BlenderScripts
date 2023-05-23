@@ -6,6 +6,7 @@ from ..operators.DistributeObToTargets import DistributeObToTargetsOperator
 from ..operators.PivotToLowest import PivotToLowestOperator
 from ..operators.RenameByHerf import RenameByHerfOperator
 from ..operators.ShapenAll import ShapenAllOperator
+from ..operators.GetParticlesMatrices import GetParticlesMatricesOperator
 
 
 class OthersFunctionPanel(bpy.types.Panel):
@@ -57,3 +58,8 @@ class OthersFunctionPanel(bpy.types.Panel):
         row.prop(context.scene,"OriginScale")
         row = col.row() 
         row.operator(DistributeObToTargetsOperator.bl_idname,text="批量生成Pivot",icon="PIVOT_CURSOR")
+        
+        layout.label(text='粒子分布信息')
+        col = layout.column()
+        row = col.row()
+        row.operator(GetParticlesMatricesOperator.bl_idname,text='导出粒子分布信息',icon='PARTICLES')
