@@ -15,17 +15,16 @@ class GetParticlesMatricesOperator(bpy.types.Operator,ExportHelper):
     # ExportHelper mixin class uses this
     filename_ext = ""
 
-    def execute(self, context):
-        # get the folder
-        folder_path = os.path.dirname(self.filepath)
-        file_path = os.path.join(folder_path, "{}.{}".format("partilcesMappingInfomatio", "txt"))
-        context = bpy.context
-
+    def execute(self, context):  
         # get the depsgraph and the evaluated object   
         dg = context.evaluated_depsgraph_get()
         ob = context.object.evaluated_get(dg)
         # assume context object has a ps, use active
-        ps = ob.particle_systems.active        
+        ps = ob.particle_systems.active     
+        
+        # get the folder
+        folder_path = os.path.dirname(self.filepath)
+        file_path = os.path.join(folder_path, "{}{}.{}".format(ps.name,"PartilcesInfo", "txt"))   
         
         matrices = []
 
