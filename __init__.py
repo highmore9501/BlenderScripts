@@ -24,6 +24,7 @@ from .operators.RemoveZero import RemoveZeroGroupOperator
 from .operators.RenameByHerf import RenameByHerfOperator
 from .operators.ShapenAll import ShapenAllOperator
 from .operators.GetParticlesMatrices import GetParticlesMatricesOperator
+from .operators.GetSelectedObjectMatrices import GetSelectedObjectsMatricesOperator
 
 bl_info = {
     # required
@@ -93,7 +94,8 @@ CLASSES = [
     RemoveZeroGroupOperator,
     RenameByHerfOperator,
     ShapenAllOperator,
-    GetParticlesMatricesOperator
+    GetParticlesMatricesOperator,
+    GetSelectedObjectsMatricesOperator,
 ]
 
 

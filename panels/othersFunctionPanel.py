@@ -7,6 +7,7 @@ from ..operators.PivotToLowest import PivotToLowestOperator
 from ..operators.RenameByHerf import RenameByHerfOperator
 from ..operators.ShapenAll import ShapenAllOperator
 from ..operators.GetParticlesMatrices import GetParticlesMatricesOperator
+from ..operators.GetSelectedObjectMatrices import GetSelectedObjectsMatricesOperator
 
 
 class OthersFunctionPanel(bpy.types.Panel):
@@ -63,3 +64,8 @@ class OthersFunctionPanel(bpy.types.Panel):
         col = layout.column()
         row = col.row()
         row.operator(GetParticlesMatricesOperator.bl_idname,text='导出粒子分布信息',icon='PARTICLES')
+        
+        layout.label(text='所选物体矩阵信息')
+        col = layout.column()
+        row = col.row()
+        row.operator(GetSelectedObjectsMatricesOperator.bl_idname,text='导出所选物体矩阵信息',icon='OBJECT_DATA')
