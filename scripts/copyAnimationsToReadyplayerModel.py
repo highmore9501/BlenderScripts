@@ -1,23 +1,35 @@
+
+# 现在存在以下问题：直接在background模式下执行以下命令会报错，是在加载完glb文件以后，显示EXCEPTION_ACCESS_VIOLATION
+# blender --background e:\readyplayer_model.blend --python E:\BlenderScripts\scripts\copyAnimationsToReadyplayerModel.py  C:\Users\BigHippo78\Downloads\readyplayer.glb
+
+# 如果改成执行非background模式的指令，也就是下面这个，
+# blender e:\readyplayer_model.blend --python E:\BlenderScripts\scripts\copyAnimationsToReadyplayerModel.py C:\Users\BigHippo78\Downloads\readyplayer.glb
+# 能正常执行完，但执行完以后也会跳报错，不过这段报错不会影响执行结果罢了。
+# Error: File format is not supported in file 'C:\Users\BigHippo78\Downloads\readyplayer.glb'
+# Error: argument has no '.blend' file extension, not using as new file, exiting! C:\Users\BigHippo78\Downloads\readyplayer.glb
+
+# 以上问题均出现在windows环境，blender版本3.5的情况下，其它情况未测试
+
+
 import bpy
 
 import sys
+import os
 
-# 获取命令行参数（跳过第一个参数，因为它是脚本名称）
+# 获取命令行参数（跳过第一个参数，因为它是blender）
 args = sys.argv[1:]
-
-# 第一个参数是要导入的glb文件路径
-src = args[0]
-src_path = src.split("\\")[:-1]
-file_name = src.split("\\")[-1]
+print("args: ", args)
+# 第五个参数是要导入的glb文件路径
+src = args[-1]
+src_path = os.path.dirname(src)
+file_name = os.path.basename(src)
 
 target_name = file_name.split(".")[0] + "_animated"
 
-if len(args) > 1:
-    # 第二个参数是要导出的glb文件路径
-    target = src_path + args[1]
-else:
-    target = src_path + target_name + ".glb"
+target = src_path + "\\\\" + target_name + ".glb"
 
+print("src: ", src)
+print("target: ", target)
 # 打开并导入glb文件
 bpy.ops.import_scene.gltf(
     filepath=src,
@@ -25,7 +37,7 @@ bpy.ops.import_scene.gltf(
     loglevel=50
 )
 
-
+print("import done")
 # 将当前选中的目标重命名为AvatarRoot
 bpy.context.selected_objects[0].name = "AvatarRoot"
 
@@ -78,3 +90,5 @@ except:
 
 # 删除当前选中的对象
 bpy.ops.object.delete()
+
+print("export done")
