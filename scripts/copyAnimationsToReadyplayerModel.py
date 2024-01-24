@@ -1,12 +1,10 @@
 
 # 现在存在以下问题：直接在background模式下执行以下命令会报错，是在加载完glb文件以后，显示EXCEPTION_ACCESS_VIOLATION
-# blender --background e:\readyplayer_model.blend --python E:\BlenderScripts\scripts\copyAnimationsToReadyplayerModel.py  C:\Users\BigHippo78\Downloads\readyplayer.glb
+# blender -b e:\readyplayer_model.blend -P E:\BlenderScripts\scripts\copyAnimationsToReadyplayerModel.py -- C:\Users\BigHippo78\Downloads\readyplayer.glb
 
 # 如果改成执行非background模式的指令，也就是下面这个，
-# blender e:\readyplayer_model.blend --python E:\BlenderScripts\scripts\copyAnimationsToReadyplayerModel.py C:\Users\BigHippo78\Downloads\readyplayer.glb
-# 能正常执行完，但执行完以后也会跳报错，不过这段报错不会影响执行结果罢了。
-# Error: File format is not supported in file 'C:\Users\BigHippo78\Downloads\readyplayer.glb'
-# Error: argument has no '.blend' file extension, not using as new file, exiting! C:\Users\BigHippo78\Downloads\readyplayer.glb
+# blender e:\readyplayer_model.blend -P E:\BlenderScripts\scripts\copyAnimationsToReadyplayerModel.py -- C:\Users\BigHippo78\Downloads\readyplayer.glb
+# 能正常执行完。
 
 # 以上问题均出现在windows环境，blender版本3.5的情况下，其它情况未测试
 
@@ -92,3 +90,6 @@ except:
 bpy.ops.object.delete()
 
 print("export done")
+
+# 退出blender
+bpy.ops.wm.quit_blender()
