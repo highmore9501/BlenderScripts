@@ -38,7 +38,7 @@ class GetSelectedObjectsMatricesOperator(bpy.types.Operator, ExportHelper):
             matrices.append(mat)
 
         # 导出矩阵信息到file_path
-        with open(self.file_path, 'w') as f:
+        with open(self.filepath, 'w') as f:
             for m in matrices:
                 f.write(str(m)+'\n')
 
