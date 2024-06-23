@@ -1,6 +1,8 @@
 ![界面截图1](asset/img/1719179658917.png)
 ![界面截图2](asset/img/image.png)
 
+English Readme is [here](readmeEN.md)
+
 这里是一些个人常用的小功能，写成了插件，当然随着 blender 版本的更新，有一部分功能 blender 本身已经能提供了，但还是放上来了。
 
 插件已经基本不更新，也不维护，不过到 blender 4.1 为止，功能基本都还能用。
